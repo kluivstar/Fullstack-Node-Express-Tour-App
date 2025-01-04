@@ -18,42 +18,6 @@ const app = require('./app')
 
 console.log(process.env)
 
-const tourSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Name is required.'],
-        unique: true,
-    },
-    price: {
-        type: Number,
-        required: [true, 'Tour price is required'],
-    },
-    rating: {
-        type: Number,
-        required: [true, 'Required']
-    }
-    
-}, 
-{
-    toJSON: {virtuals: true},
-    toObject: {virtuals: true}
-});
-
-
-const Tour = mongoose.model('Tour', tourSchema)
-module.exports = Tour;
-
-const testTour = new Tour({
-    name: 'The Hello tours',
-    rating: 4.3,
-    price: 233
-})
-testTour.save().then(doc => {
-    console.log(doc)
-}).catch(err => {
-    console.log(err)
-})
-
 // connecting to remote DB
 mongoose.connect(process.env.CONN_STR, {
     useNewUrlParser: true
