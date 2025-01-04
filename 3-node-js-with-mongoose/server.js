@@ -24,99 +24,14 @@ const tourSchema = new mongoose.Schema({
         required: [true, 'Name is required.'],
         unique: true,
     },
-    images: [String],
-    imageCover: {
-        type: String,
-        required: [true, "A tour must have a cover image"]
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now(),
-        select: false
-    },
-    maxGroupSize: {
-        type: Number,
-        required: [true, 'A tour must have a group size']
-    },
-    slug: String,
-    difficulty: {
-        type: String,
-        required: [true, ''],
-        enum: {
-            values: ['easy', 'medium', 'difficult'],
-            message: 'Difficulty is either: easy, medium, difficult'
-          }
-    },
-    secretTour: {
-        type: Boolean,
-        default: false
-    },
-    startDates: [Date],
     price: {
         type: Number,
         required: [true, 'Tour price is required'],
     },
-    priceDiscount: {
+    rating: {
         type: Number,
-    },
-    summary: {
-        type: String,
-        trim: true
-    },
-    description: {
-        type: String,
-        trim: true,
-        required: [true, 'Add a description']
-    },
-    duration: {
-        type: Number,
-        required: [true, 'Duration is required field!']
-    },
-    ratingsAverage: {
-        type: Number,
-        default: 4.5,
-        min: [1, 'Rating must be above 1.0'],
-        max: [5, 'Rating must be below 5.0'],
-        set: val => Math.round(val * 10) / 10 
-    },
-    secretTour: {
-        type: Boolean,
-        default: false
-    },
-    ratingsQuantity: {
-        type: Number,
-        default: 0
-    },
-    startLocation: {
-    type: {
-        type: String,
-        default: 'Point',
-        enum: ['Point']
-    },
-    coordinates: [Number],
-        address: String,
-        description: String
-    },
-    locations: [
-        {
-            type: {
-                type: String,
-                default: 'Point',
-                enum: ['Point']
-            },
-            coordinates: [Number],
-            address: String,
-            description: String,
-            day: Number
-        }
-    ],
-    
-    guides: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User'
-      }
-    ]
+        required: [true, 'Required']
+    }
     
 }, 
 {
@@ -128,6 +43,16 @@ const tourSchema = new mongoose.Schema({
 const Tour = mongoose.model('Tour', tourSchema)
 module.exports = Tour;
 
+const testTour = new Tour({
+    name: 'The Hello tours',
+    rating: 4.3,
+    price: 233
+})
+testTour.save().then(doc => {
+    console.log(doc)
+}).catch(err => {
+    console.log(err)
+})
 
 // connecting to remote DB
 mongoose.connect(process.env.CONN_STR, {
