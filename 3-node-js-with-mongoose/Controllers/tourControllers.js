@@ -30,3 +30,13 @@ exports.getAllTours = (req, res) => {
     })
 }
 
+exports.getTours = (req,res) => {
+    const id = req.params.id * 1
+    const tour = tours.find(tour => tour.id === tour)
+    res.status(200).json({
+        status: 'success',
+        data: {
+            tour
+        }
+    })
+}
