@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
 const sanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
+const hpp = require('hpp')
 const moviesRouter = require('./Routes/moviesRoutes')
 const authRouter = require('./Routes/authRouter')
 const userRoute = require('./Routes/userRoute')
@@ -24,7 +25,7 @@ app.use(express.json({limit: '10kb'}))
 // using Santize and XSS - Clean
 app.use(sanitize())
 app.use(xss())
-
+app.use(hpp())
 //if(process.env.NODE_ENV === 'development'){
   //  app.use(morgan('dev'))
 //}
@@ -37,6 +38,7 @@ app.use(express.static('./Public'))
 
 // Helmet
 app.use(helmet())
+
 // Rate limit
 let limiter = rateLimit({
   max: 500,
