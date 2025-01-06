@@ -10,6 +10,7 @@ const hpp = require('hpp')
 const moviesRouter = require('./Routes/moviesRoutes')
 const authRouter = require('./Routes/authRouter')
 const userRoute = require('./Routes/userRoute')
+const tourRoute = require('./Routes/tourRoutes')
 const CustomError = require('./Utils/CustomError')
 const globalErrorHandler = require('./Controllers/errController')
 
@@ -64,9 +65,10 @@ app.patch('/movies/:id', updateMovie)
 app.delete('/movies/:id', deleteMovie) */
 
 // using/mounting our imported route module.
-app.use('/movies', moviesRouter)
+// app.use('/movies', moviesRouter)
 app.use('/auth', authRouter)
 app.use('/user', userRoute)
+app.use('/tour', tourRoute)
 
 // defining route for non existent URLS
 app.all('*', (req, res, next) => {

@@ -1,26 +1,10 @@
+const express = require('express')
+const tourController = require('./../Controllers/tourControllers')
 
-exports.checkID = (res, req, next, val) => {
-    if(req.params.id * 1 > tours.length){
-        return res.status(404).json({
-            status: 'fail',
-            message: 'Invalid id'
-        })
-        
-    }
-    next()
-}
+const router = express.Router()
 
-exports.checkBody = (res, req, next) => {
-    if(!req.body.name || !req.body.price){
-        return res.status(400).json({
-            status: 'fail',
-            message: 'Missing name or price'
-        })
-    }
-    next()
-}
+router
+    .route('/')
+    .get(tourController.getAllTours)
 
-exports.getAllTour = (res, req) => {
-    const id = req.params.id * 1
-    const tour = tours.find
-}
+module.exports = router

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-// import dotenv
+
+// import dotenv - read variable from config which is then console logged
 const dotenv = require('dotenv')
 dotenv.config({path: './config.env'})
 
@@ -15,7 +16,6 @@ process.on('uncaughtException', (err) =>{
 const app = require('./app')
 
 //reading/loading our config file defining our environmental variable like CONN_STR
-
 console.log(process.env)
 
 // connecting to remote DB
