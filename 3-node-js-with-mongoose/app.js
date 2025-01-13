@@ -57,18 +57,11 @@ app.use('/auth', limiter)
     //next()
 //})
 
-// api/movies
-/* app.get('/movies', getAllMovies)
-app.get('/movies/:id', getRouteId)
-app.post('/movies', createMovies)
-app.patch('/movies/:id', updateMovie)
-app.delete('/movies/:id', deleteMovie) */
 
-// using/mounting our imported route module.
-// app.use('/movies', moviesRouter)
+// using/mounting our imported route module/middleware - specifing route to middleware.
 app.use('/auth', authRouter)
-app.use('/user', userRoute)
-app.use('/tour', tourRoute)
+app.use('/users', userRoute)
+app.use('/tours', tourRoute)
 
 // defining route for non existent URLS
 app.all('*', (req, res, next) => {

@@ -9,9 +9,17 @@ const tourSchema = new mongoose.Schema({
         required: [true, 'Name is required.'],
         unique: true,
     },
-    rating: {
-        type: Boolean,
-        default: 3.3
+    // rating: {
+    //     type: Boolean,
+    //     default: 3.3
+    // },
+    difficulty: {
+        type: String,
+        required: [true, 'A tour must have a difficulty'],
+        enum: {
+            values: ['easy', 'medium', 'difficult'],
+            message: "Difficult is either: easy, medium, difficult"
+        }
     },
     // images: [String],
     // imageCover: {
