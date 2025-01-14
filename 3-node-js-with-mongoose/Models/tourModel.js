@@ -9,10 +9,12 @@ const tourSchema = new mongoose.Schema({
         required: [true, 'Name is required.'],
         unique: true,
     },
-    // rating: {
-    //     type: Boolean,
-    //     default: 3.3
-    // },
+    rating: {
+        type: Number,
+        
+        min: 1,
+        max: 5
+    },
     difficulty: {
         type: String,
         required: [true, 'A tour must have a difficulty'],
@@ -21,99 +23,99 @@ const tourSchema = new mongoose.Schema({
             message: "Difficult is either: easy, medium, difficult"
         }
     },
-    // images: [String],
-    // imageCover: {
-    //     type: String,
-    //     required: [true, "A tour must have a cover image"]
-    // },
-    // createdAt: {
-    //     type: Date,
-    //     default: Date.now(),
-    //     select: false
-    // },
-    // maxGroupSize: {
-    //     type: Number,
-    //     required: [true, 'A tour must have a group size']
-    // },
-    // slug: String,
-    // difficulty: {
-    //     type: String,
-    //     required: [true, ''],
-    //     enum: {
-    //         values: ['easy', 'medium', 'difficult'],
-    //         message: 'Difficulty is either: easy, medium, difficult'
-    //       }
-    // },
-    // secretTour: {
-    //     type: Boolean,
-    //     default: false
-    // },
-    // startDates: [Date],
+    images: [String],
+    imageCover: {
+        type: String,
+        // required: [true, "A tour must have a cover image"]
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now(),
+        select: false
+    },
+    maxGroupSize: {
+        type: Number,
+        // required: [true, 'A tour must have a group size']
+    },
+    slug: String,
+    difficulty: {
+        type: String,
+        // required: [true, ''],
+        enum: {
+            values: ['easy', 'medium', 'difficult'],
+            message: 'Difficulty is either: easy, medium, difficult'
+          }
+    },
+    secretTour: {
+        type: Boolean,
+        default: false
+    },
+    startDates: [Date],
     price: {
         type: Number,
         required: [true, 'Tour price is required'],
     },
-    // priceDiscount: {
-    //     type: Number,
-    // },
-    // summary: {
-    //     type: String,
-    //     trim: true
-    // },
-    // description: {
-    //     type: String,
-    //     trim: true,
-    //     required: [true, 'Add a description']
-    // },
-    // duration: {
-    //     type: Number,
-    //     required: [true, 'Duration is required field!']
-    // },
-    // ratingsAverage: {
-    //     type: Number,
-    //     default: 4.5,
-    //     min: [1, 'Rating must be above 1.0'],
-    //     max: [5, 'Rating must be below 5.0'],
-    //     set: val => Math.round(val * 10) / 10 
-    // },
-    // secretTour: {
-    //     type: Boolean,
-    //     default: false
-    // },
-    // ratingsQuantity: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // startLocation: {
-    // type: {
-    //     type: String,
-    //     default: 'Point',
-    //     enum: ['Point']
-    // },
-    // coordinates: [Number],
-    //     address: String,
-    //     description: String
-    // },
-    // locations: [
-    //     {
-    //         type: {
-    //             type: String,
-    //             default: 'Point',
-    //             enum: ['Point']
-    //         },
-    //         coordinates: [Number],
-    //         address: String,
-    //         description: String,
-    //         day: Number
-    //     }
-    // ],
+    priceDiscount: {
+        type: Number,
+    },
+    summary: {
+        type: String,
+        trim: true
+    },
+    description: {
+        type: String,
+        trim: true,
+        // required: [true, 'Add a description']
+    },
+    duration: {
+        type: Number,
+        // required: [true, 'Duration is required field!']
+    },
+    ratingsAverage: {
+        type: Number,
+        default: 4.5,
+        min: [1, 'Rating must be above 1.0'],
+        max: [5, 'Rating must be below 5.0'],
+        set: val => Math.round(val * 10) / 10 
+    },
+    secretTour: {
+        type: Boolean,
+        default: false
+    },
+    ratingsQuantity: {
+        type: Number,
+        default: 0
+    },
+    startLocation: {
+    type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+    },
+    coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [
+        {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point']
+            },
+            coordinates: [Number],
+            address: String,
+            description: String,
+            day: Number
+        }
+    ],
     
-    // guides: [
-    //   {
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: 'User'
-    //   }
-    // ]
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+      }
+    ]
     
 }, 
 {
