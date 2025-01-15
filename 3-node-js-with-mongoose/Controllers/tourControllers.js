@@ -38,20 +38,26 @@ exports.checkID = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
     try{
-        console.log(req.query)
+        
         // const features = new APIFeatures(Tour.find(), req.query)
         // .filter()
         // .sort()
         // .limitFields()
         // .paginate()
 
+        // Build query
         const queryObj = {...req.query};
         const excludedFields = ['sort', 'fields', 'page', 'limit', 'page'];
         excludedFields.forEach(el => delete queryObj[el]);
         
-        console.log(req.query, queryObj)
+        // Advance filtering
+        let queryStr = JSON.stringify(queryObj)
+        queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
+        console.log(JSON.parse(queryStr))
 
-        const query = Tour.find(queryObj)
+        const query = Tour.find(JSON.parse(queryStr))
+        
+        // Execute query
         const tours = await query
 
     res.status(200).json({
