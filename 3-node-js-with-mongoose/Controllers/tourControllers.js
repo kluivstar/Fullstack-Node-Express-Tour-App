@@ -1,5 +1,6 @@
 const Tour = require('./../Models/tourModel')
 const fs = require('fs')
+const APIFeatures = require('./../Utils/ApiFeatures')
 
 const tours = JSON.parse(
     fs.readFileSync(`${__dirname}/../data/tours-simple.json`)
@@ -25,68 +26,18 @@ exports.aliaTopTours = (req,res, next) => {
     next()
 }
 
-exports.checkID = (req, res, next) => {
-    if(!req.body.name || !req.body.price){
-        return res.status(400).json({
-            status: 'fail',
-            message: 'Missing name or price'
-        })
-    }
-    next()
-}
-
-
 exports.getAllTours = async (req, res) => {
     try{
         
-        // const features = new APIFeatures(Tour.find(), req.query)
-        // .filter()
-        // .sort()
-        // .limitFields()
-        // .paginate()
+        const features = new APIFeatures(Tour.find(), req.query)
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate()
 
-        // Build query
-        // 1 Filter
-        const queryObj = {...req.query};
-        const excludedFields = ['sort', 'fields', 'page', 'limit', 'page'];
-        excludedFields.forEach(el => delete queryObj[el]);
         
-        // Advance filtering
-        let queryStr = JSON.stringify(queryObj)
-        queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
-
-        let query = Tour.find(JSON.parse(queryStr))
-        
-        // 2 Sort 
-        if (req.query.sort) {
-            // if sort exist, value is split into an arry and join with space to form a string
-            const sortBy = req.query.sort.split(',').join(' ')
-            query = query.sort(sortBy)
-        } else {
-            // if no sorting most recent tours will be re
-            query = query.sort('-createdAt')
-        }
-
-        // 3 Field Limiting
-        if (req.query.fields) {
-            const fields = req.query.fields.split(',').join(' ')
-            query = query.select(fields)
-        } else {
-            query = query.select('-__v')
-        }
-
-        // 4 Pagination
-        const page = req.query.page * 1 || 1;
-        const limit = req.query.limit * 1 || 100
-        const skip = (page - 1 ) * limit
-        query = query.skip(skip).limit(limit)
-
-        if (req.query.page) {
-            const numTours = await Tours.countDocuments()
-            if(skip >= numTours) throw new Error('This page does not exist')
-        }
         // Execute Query
-        const tours = await query
+        const tours = await features.query
 
     res.status(200).json({
         status: 'success',
