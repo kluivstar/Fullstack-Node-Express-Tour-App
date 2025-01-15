@@ -59,7 +59,7 @@ exports.getAllTours = async (req, res) => {
         
         // 2 Sort 
         if (req.query.sort) {
-            // if sort exist, value is split into an arrya and join with space to form a string
+            // if sort exist, value is split into an arry and join with space to form a string
             const sortBy = req.query.sort.split(',').join(' ')
             query = query.sort(sortBy)
         } else {
@@ -75,6 +75,16 @@ exports.getAllTours = async (req, res) => {
             query = query.select('-__v')
         }
 
+        // 4 Pagination
+        const page = req.query.page * 1 || 1;
+        const limit = req.query.limit * 1 || 100
+        const skip = (page - 1 ) * limit
+        query = query.skip(skip).limit(limit)
+
+        if (req.query.page) {
+            const numTours = await Tours.countDocuments()
+            if(skip >= numTours) throw new Error('This page does not exist')
+        }
         // Execute Query
         const tours = await query
 
