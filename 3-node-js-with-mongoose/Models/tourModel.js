@@ -31,6 +31,7 @@ const tourSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now(),
+        // 'false' hides this field
         select: false
     },
     maxGroupSize: {

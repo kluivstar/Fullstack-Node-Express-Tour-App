@@ -58,14 +58,24 @@ exports.getAllTours = async (req, res) => {
         let query = Tour.find(JSON.parse(queryStr))
         
         // 2 Sort 
-        if (req.query.sort){
+        if (req.query.sort) {
+            // if sort exist, value is split into an arrya and join with space to form a string
             const sortBy = req.query.sort.split(',').join(' ')
             query = query.sort(sortBy)
         } else {
-            query = query.sort('-createAt')
+            // if no sorting most recent tours will be re
+            query = query.sort('-createdAt')
         }
 
-        // Execute query
+        // 3 Field Limiting
+        if (req.query.fields) {
+            const fields = req.query.fields.split(',').join(' ')
+            query = query.select(fields)
+        } else {
+            query = query.select('-__v')
+        }
+
+        // Execute Query
         const tours = await query
 
     res.status(200).json({
