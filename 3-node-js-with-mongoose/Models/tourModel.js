@@ -144,11 +144,13 @@ tourSchema.pre('save', function(next){
 //     localField: '_id'
 // })
 
-// tourSchema.pre('/^find/', function(next){
-//     this.find({secretTour: {$ne: true}})
-//     this.start = Date.now()
-//     next()
-// })
+// Query Middleware: runs before a query "find", adds "secret tour" to document.
+// '/^find/' executes on all find query unlike using 'find'
+tourSchema.pre('/^find/', function(next){
+    this.find({secretTour: {$ne: true}})
+    this.start = Date.now()
+    next()
+})
 
 // tourSchema.pre('/^find/', function(next){
 //     this.populate({
