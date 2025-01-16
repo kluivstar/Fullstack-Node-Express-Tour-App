@@ -183,7 +183,7 @@ exports.getMonthlyPlan = async(req, res, next) => {
         },
         {
             $project: {
-                _id: 0
+                _id: 0 // hides id field
             }
         },
         {

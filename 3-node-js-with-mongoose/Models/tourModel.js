@@ -120,13 +120,15 @@ const tourSchema = new mongoose.Schema({
     
 }, 
 {
+    // These options ensure that virtual properties are included when a document is converted to JSON (toJSON) or a plain JavaScript object (toObject).
     toJSON: {virtuals: true},
     toObject: {virtuals: true}
 });
 
-// tourSchema.virtual('durutionWeeks'.get(function(){
-//     return this.duration / 7
-// }))
+// calculates number of weeks based on the "duration" field
+tourSchema.virtual('durutionWeeks').get(function(){
+    return this.duration / 7
+})
 
 // tourSchema.virtual('reviews', {
 //     ref: 'Review',
