@@ -131,7 +131,10 @@ tourSchema.virtual('durutionWeeks').get(function(){
     return this.duration / 7
 })
 
-// Document Middleware: runs before a document is saved
+// 'this' points to the current query if in query middleware, or aggregation if in aggreation middleware etc
+
+
+// DOCUMENT MIDDLEWARE: runs before a document is saved
 // Generates a slug for each document, ensure they have a URL friendly identifier (slug) based on name
 tourSchema.pre('save', function(next){
     this.slug = slugify(this.name, {lower: true})
@@ -144,7 +147,7 @@ tourSchema.pre('save', function(next){
 //     localField: '_id'
 // })
 
-// Query Middleware: runs before a query "find", adds "secret tour" to document.
+// QUERY MIDDLEWARE: runs before a query "find" query on the Tour model.
 // '/^find/' executes on all find query unlike using 'find'
 tourSchema.pre('/^find/', function(next){
     this.find({secretTour: {$ne: true}})
@@ -152,13 +155,15 @@ tourSchema.pre('/^find/', function(next){
     next()
 })
 
-// tourSchema.pre('/^find/', function(next){
-//     this.populate({
-//         path: 'guides',
-//         select: '-__v -passwordChangedAt'
-//     })
-//     next()
-// })
+// AGGREGATION MIDDLEWARE: $match ensure only document with false secretTours are included in aggregation results
+tourSchema.pre('aggregate', function(next){
+    this.pipeline().unshift({
+        $match: {secretTour: {$ne: true}}
+    })
+
+    console.log(this.pipeline())
+    next()
+})
 
 const Tour = mongoose.model('Tour', tourSchema)
 module.exports = Tour;
