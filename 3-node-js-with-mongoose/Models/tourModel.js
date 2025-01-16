@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
+const slugify = require('slugify')
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -17,7 +18,7 @@ const tourSchema = new mongoose.Schema({
     },
     difficulty: {
         type: String,
-        required: [true, 'A tour must have a difficulty'],
+        // required: [true, 'A tour must have a difficulty'],
         enum: {
             values: ['easy', 'medium', 'difficult'],
             message: "Difficult is either: easy, medium, difficult"
@@ -54,7 +55,7 @@ const tourSchema = new mongoose.Schema({
     startDates: [Date],
     price: {
         type: Number,
-        required: [true, 'Tour price is required'],
+        // required: [true, 'Tour price is required'],
     },
     priceDiscount: {
         type: Number,
@@ -128,6 +129,13 @@ const tourSchema = new mongoose.Schema({
 // calculates number of weeks based on the "duration" field
 tourSchema.virtual('durutionWeeks').get(function(){
     return this.duration / 7
+})
+
+// Document Middleware: runs before a document is saved
+// Generates a slug for each document, ensure they have a URL friendly identifier (slug) based on name
+tourSchema.pre('save', function(next){
+    this.slug = slugify(this.name, {lower: true})
+    next()
 })
 
 // tourSchema.virtual('reviews', {
