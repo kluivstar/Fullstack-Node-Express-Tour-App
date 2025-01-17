@@ -2,17 +2,17 @@
 const AppError = require("../Utils/appError")
 
 // Send Dev errors to Developer/Engineer
-const devErrors = (err, res) => {
+const sendDevError = (err, res) => {
     res.status(err.statusCode).json({
-        status: err.statusCode,
+        status: err.status,
         message: err.message,
-        stackTrace: err.stack,
+        stack: err.stack,
         error: err // full error obj
     })
 }
 
-const castErrorHandler = (err)=> {
-    const message = `Invalid value for ${err.path}: ${err.value}`
+const castErrorHandler = err => {
+    const message = `Invalid value for ${err.path}: ${err.value}.`
     //returns or create AppError instance to represent an operational error
     return new AppError(message, 400)
 }
@@ -44,11 +44,11 @@ const castErrorHandler = (err)=> {
 const sendProdError = (err, res) => {
     if(err.isOperational){
         res.status(err.statusCode).json({
-            status: err.statusCode,
+            status: err.status,
             message: err.message,
             
         })
-    }else {
+    } else {
         res.status(500).json({
             status: 'error',
             message: 'Something went wrong....'
@@ -62,17 +62,19 @@ module.exports = (err, req, res, next) => {
     err.status = err.status ||'error'
     
     if(process.env.NODE_ENV === 'development'){
-        devErrors(err, res)
+        sendDevError(err, res)
     } else if(process.env.NODE_ENV === 'production'){
-        let error = {...err}
+        // Retain properties of original err obj
+        let error = Object.assign(err);
 
-        if(error.name == 'CastError') error = castErrorHandler(error);
+
+        if(error.name === 'CastError') error = castErrorHandler(error);
         // if(error.code == 11000) error = duplicateKeyErrorHandler(error);
         // if(error.name == 'ValidationError') error = validationErrorHandler(error);
         // if(error.name == 'TokenExpiredError') error = handleExpiredJWT(error);
         // if(error.name == 'JsonWebTokenError') error = handleJWTError(error);
 
-        sendProdError(err, res)
+        sendProdError(error, res)
     
 }
 }
