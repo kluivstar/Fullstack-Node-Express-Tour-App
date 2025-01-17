@@ -1,7 +1,7 @@
 const Tour = require('./../Models/tourModel')
 const fs = require('fs')
-const APIFeatures = require('./../Utils/ApiFeatures')
-const AppError = require("../Utils/AppError")
+const APIFeatures = require('../Utils/apiFeatures')
+const AppError = require("../Utils/appError")
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 
 
@@ -37,6 +37,8 @@ exports.getTour = asyncErrorHandler(async (req, res, next)=>{
     
     const tour =  await Tour.findById(req.params.id)
     if (!tour){
+        //catches erorr, returns or create AppError instance to represent an operational error. 
+        // Instance is passed into error middleware in errController which sends the appropriate response to client
         return next(new AppError('No tour found with that ID', 404))
     }
 

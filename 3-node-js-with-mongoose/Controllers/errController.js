@@ -1,49 +1,51 @@
-const AppError = require("../Utils/AppError")
+
+const AppError = require("../Utils/appError")
 
 // Send Dev errors to Developer/Engineer
-const devErrors = (res, error) => {
-    res.status(error.statusCode).json({
-        status: error.statusCode,
-        message: error.message,
-        stackTrace: error.stack,
-        error: error // full error obj
+const devErrors = (err, res) => {
+    res.status(err.statusCode).json({
+        status: err.statusCode,
+        message: err.message,
+        stackTrace: err.stack,
+        error: err // full error obj
     })
 }
 
 const castErrorHandler = (err)=> {
     const message = `Invalid value for ${err.path}: ${err.value}`
+    //returns or create AppError instance to represent an operational error
     return new AppError(message, 400)
 }
 
-const duplicateKeyErrorHandler = (err) =>{
-    const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-    console.log(value)
+// const duplicateKeyErrorHandler = (err) =>{
+//     const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+//     console.log(value)
 
-    const message = `Theres is already a tour with name ${name}. Kindly use another name`
-    return new AppError(message, 400)
-}
+//     const message = `Theres is already a tour with name ${name}. Kindly use another name`
+//     return new AppError(msg, 400)
+// }
 
-const validatioinErrorHandler =(err) => {
-    const errors = Object.values(err.errors).map(val => val.message)
-    const errorMessages = errors.join('. ')
-    const message =`Invalid input data: $//{errorMessages}`
+// const validationErrorHandler =(err) => {
+//     const errors = Object.values(err.errors).map(val => val.message)
+//     const errorMessages = errors.join('. ')
+//     const message =`Invalid input data: $//{errorMessages}`
 
-    return new AppError(message, 400)
+//     return new AppError(message, 400)
     
-}
-const handleExpiredJWT =(err) =>{
-    return new AppError('JWT has expired, kindly login again', 401)
-}
-const handleJWTError =(err) =>{
-    return new AppError('Invalid token, kindly login again', 401)
-}
+// }
+// const handleExpiredJWT =(err) =>{
+//     return new AppError('JWT has expired, kindly login again', 401)
+// }
+// const handleJWTError =(err) =>{
+//     return new AppError('Invalid token, kindly login again', 401)
+// }
 
 // Production Error Handler - Send Operational Errors to clients
-const prodErrors = (res, error) => {
-    if(error.isOperational){
-        res.status(error.statusCode).json({
-            status: error.statusCode,
-            message: error.message,
+const sendProdError = (err, res) => {
+    if(err.isOperational){
+        res.status(err.statusCode).json({
+            status: err.statusCode,
+            message: err.message,
             
         })
     }else {
@@ -54,22 +56,23 @@ const prodErrors = (res, error) => {
     }
 }
 
-// Error Middleware
-module.exports = (error, req, res, next) => {
-    error.statusCode = error.statusCode || 500 //default error
-    error.status = error.status ||'error'
+// Global Error Handling Middleware
+module.exports = (err, req, res, next) => {
+    err.statusCode = err.statusCode || 500 //default error
+    err.status = err.status ||'error'
     
     if(process.env.NODE_ENV === 'development'){
-        devErrors(res, error)
+        devErrors(err, res)
     } else if(process.env.NODE_ENV === 'production'){
-        let error = {...error}
+        let error = {...err}
 
         if(error.name == 'CastError') error = castErrorHandler(error);
-        if(error.code == 11000) error = duplicateKeyErrorHandler(error);
-        if(error.name == 'ValidationError') error = validatioinErrorHandler(error);
-        if(error.name == 'TokenExpiredError') error = handleExpiredJWT(error);
-        if(error.name == 'JsonWebTokenError') error = handleJWTError(error);
-        prodErrors(res, error)
-    prodErrors(error, res)
+        // if(error.code == 11000) error = duplicateKeyErrorHandler(error);
+        // if(error.name == 'ValidationError') error = validationErrorHandler(error);
+        // if(error.name == 'TokenExpiredError') error = handleExpiredJWT(error);
+        // if(error.name == 'JsonWebTokenError') error = handleJWTError(error);
+
+        sendProdError(err, res)
+    
 }
 }

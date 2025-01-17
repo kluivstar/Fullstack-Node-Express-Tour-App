@@ -1,8 +1,8 @@
 const {params} = require('../Routes/moviesRoutes')
 const Movie = require('./../Models/movieModels')
-const ApiFeatures = require('./../Utils/ApiFeatures')
+const ApiFeatures = require('../Utils/apiFeatures')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
-const AppError = require('../Utils/AppError')
+const AppError = require('../Utils/appError')
 
 // GETTING HIGHEST RATED USING ALIASE
 exports.getHighestRated = (req, res, next) => {
