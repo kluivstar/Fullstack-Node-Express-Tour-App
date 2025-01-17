@@ -2,7 +2,7 @@ const {params} = require('../Routes/moviesRoutes')
 const Movie = require('./../Models/movieModels')
 const ApiFeatures = require('./../Utils/ApiFeatures')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
-const CustomError = require('./../Utils/CustomError')
+const AppError = require('../Utils/AppError')
 
 // GETTING HIGHEST RATED USING ALIASE
 exports.getHighestRated = (req, res, next) => {
@@ -87,7 +87,7 @@ exports.getMovie = asyncErrorHandler(async (req, res, next) =>{
         
         console.log(x)
         if(!movie){
-            const error = new CustomError(`Movie with ID is not found`, 404)
+            const error = new AppError(`Movie with ID is not found`, 404)
             return next(error)
         }
         res.status(200).json({
@@ -118,7 +118,7 @@ exports.updateMovie = async (req, res, next) => {
         const updateMovie = await Movie.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
 
         if(!updateMovie){
-            const error = new CustomError('Movie with that ID is not found', 404)
+            const error = new AppError('Movie with that ID is not found', 404)
             return next(error)
         }
         
@@ -143,7 +143,7 @@ exports.deleteMovie = asyncErrorHandler(async (req, res, next) =>{
     const deleteMovie = await Movie.findByIdAndDelete(req.params.id)
     
     if(!deleteMovie){
-        const error = new CustomError('Movie with that ID is not found', 404)
+        const error = new AppError('Movie with that ID is not found', 404)
         return next(error)
     }
     

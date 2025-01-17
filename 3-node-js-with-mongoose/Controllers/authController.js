@@ -1,7 +1,7 @@
 const User = require('./../Models/userModel')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 const jwt = require('jsonwebtoken')
-const customError = require('./../Utils/CustomError')
+const AppError = require('../Utils/AppError')
 const util = require('util')
 const sendEmail = require('./../Utils/email')
 const crypto = require('crypto')
@@ -47,7 +47,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     const password = req.body.password
 
     if(!email || !password){
-        const error = new customError("Kindly enter an email or a password", 400)
+        const error = new AppError("Kindly enter an email or a password", 400)
         return next(error)
     }
 
@@ -56,7 +56,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     //const isMatch = await user.comparePasswordInDb(password, user.password)
 
     if (!user || !(await user.comparePasswordInDb(password, user.password))){
-        const error = new customError('Incorrect credentials', 400)
+        const error = new AppError('Incorrect credentials', 400)
         return next(error)
     }
     createSendResponse(user, 200, res)
@@ -71,7 +71,7 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
         token = testToken.split(' ')[1]
     }
     if(!token){
-        next(new customError("You're not logged in", 400))
+        next(new AppError("You're not logged in", 400))
     }
 
     // validate token
@@ -80,14 +80,14 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     // if user exists
     const user = await User.findById(decodedToken.id)
     if(!user){
-        const error = new customError('The user with given token does not exist.', 401);
+        const error = new AppError('The user with given token does not exist.', 401);
         next(error)
     };
 
     // if user changed password after token was issued
     const isPasswordChanged = await user.isPasswordChanged(decodedToken.iat)
     if(isPasswordChanged){
-        const error = new customError("Password was changed resently, kindly login again", 401);
+        const error = new AppError("Password was changed resently, kindly login again", 401);
         return next(error);
     };
 
@@ -99,7 +99,7 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
 exports.restrict = (role) => {
     return (req, res, next) => {
         if(req.user.role !== role){
-            const error = new customError("You do not have permission to perform this action..", 403);
+            const error = new AppError("You do not have permission to perform this action..", 403);
             next(error);
         }
         // allows user delete movie if role is admin by called the next MW "deleteMovie"
@@ -112,7 +112,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     // Get user based on posted email
     const user = await User.findOne({email: req.body.email});
     if(!user){
-        const error = new customError("User doesnt exist..", 404);
+        const error = new AppError("User doesnt exist..", 404);
         return next(error);
     }
     
@@ -138,7 +138,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
         user.passwordResetToken = undefined;
         user.passwordResetTokenExpires = undefined;
         user.save({validateBeforeSave: false});
-        return next(new customError('There was an error sending password reset email, kindly try again later', 500));
+        return next(new AppError('There was an error sending password reset email, kindly try again later', 500));
     };
 
 });
@@ -149,7 +149,7 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     const user = await User.findOne({passwordResetToken: token, passwordResetTokenExpires: {$gt: Date.now()}})
 
     if(!user){
-        const error = new customError('Token expired or invalid', 400)
+        const error = new AppError('Token expired or invalid', 400)
         next(error)
     }
 

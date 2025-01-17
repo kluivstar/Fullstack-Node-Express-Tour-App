@@ -1,7 +1,7 @@
 const User = require('./../Models/userModel')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 const jwt = require('jsonwebtoken')
-const customError = require('./../Utils/CustomError')
+const AppError = require('../Utils/AppError')
 const util = require('util')
 const sendEmail = require('./../Utils/email')
 const crypto = require('crypto')
@@ -55,7 +55,7 @@ exports.updatePassword = asyncErrorHandler(async(req, res, next) => {
 
     // check if the supplied current password is correct
     if(!(await user.comparePasswordInDb(req.body.currentPassword, user.password))){
-        return next(new customError('The current password you provided is wrong', 401))
+        return next(new AppError('The current password you provided is wrong', 401))
     }
 
     // If supplied password is correct, update user password with new value
@@ -71,7 +71,7 @@ exports.updatePassword = asyncErrorHandler(async(req, res, next) => {
 exports.updateMe = asyncErrorHandler(async(req, res, next) => {
     // Get current user data from database
     if(req.body.password || req.body.confirmPassword){
-        return next(new customError("You cannot update your password using this endpoint.", 400))
+        return next(new AppError("You cannot update your password using this endpoint.", 400))
     }
 
     //Update user detail

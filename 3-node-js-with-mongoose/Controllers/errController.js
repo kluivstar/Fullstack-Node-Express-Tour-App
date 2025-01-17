@@ -1,4 +1,4 @@
-const CustomError = require("../Utils/CustomError")
+const AppError = require("../Utils/AppError")
 
 const devErrors = (res, error) => {
     res.status(error.statusCode).json({
@@ -11,13 +11,15 @@ const devErrors = (res, error) => {
 
 const castErrorHandler = (err)=> {
     const msg = `Invalid value for ${err.path}: ${err.value}`
-    return new CustomError(msg, 400)
+    return new AppError(msg, 400)
 }
 
 const duplicateKeyErrorHandler = (err) =>{
-    const name = err.keyValue.name
-    const msg = `Theres is already a movie with name ${name}. Kindly use another name`
-    return new CustomError(msg, 400)
+    const name = err.err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+    console.log(value)
+
+    const msg = `Theres is already a tour with name ${name}. Kindly use another name`
+    return new AppError(msg, 400)
 }
 
 const validatioinErrorHandler =(err) => {
@@ -25,14 +27,14 @@ const validatioinErrorHandler =(err) => {
     const errorMessages = errors.join('. ')
     const msg =`Invalid input data: $//{errorMessages}`
 
-    return new CustomError(msg, 400)
+    return new AppError(msg, 400)
     
 }
 const handleExpiredJWT =(err) =>{
-    return new CustomError('JWT has expired, kindly login again', 401)
+    return new AppError('JWT has expired, kindly login again', 401)
 }
 const handleJWTError =(err) =>{
-    return new CustomError('Invalid token, kindly login again', 401)
+    return new AppError('Invalid token, kindly login again', 401)
 }
 
 const prodErrors = (res, error) => {

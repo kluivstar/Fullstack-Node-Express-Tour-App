@@ -11,7 +11,7 @@ const moviesRouter = require('./Routes/moviesRoutes')
 const authRouter = require('./Routes/authRouter')
 const userRoute = require('./Routes/userRoute')
 const tourRoute = require('./Routes/tourRoutes')
-const CustomError = require('./Utils/CustomError')
+const AppError = require('./Utils/AppError')
 const globalErrorHandler = require('./Controllers/errController')
 
 // custom middleware function that logs a message whenever a request hits your server. It calls next() to pass control to the next middleware in the stack.
@@ -63,7 +63,7 @@ app.use('/auth', authRouter)
 app.use('/users', userRoute)
 app.use('/tours', tourRoute)
 
-// defining route for non existent URLS
+// defining route for non existent URLS/Wild card route
 app.all('*', (req, res, next) => {
    // res.status(404).json({
        // status: "fail",
@@ -72,7 +72,7 @@ app.all('*', (req, res, next) => {
     //const err = new Error(`Cant find ${req.originalUrl} on the server!`)
     //err.status = 'fail'
     //err.statusCode = 404
-    const err = new CustomError(`Cant find ${req.originalUrl} on the server!`, 404)
+    const err = new AppError(`Cant find ${req.originalUrl} on the server!`, 404)
     next(err)
 })
 
