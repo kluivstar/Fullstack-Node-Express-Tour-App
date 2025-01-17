@@ -11,28 +11,28 @@ const sendDevError = (err, res) => {
     })
 }
 
+// Handles exception for trying to fetch an invalid route parameter/getting a specific tour that doesnt exist
 const castErrorHandler = err => {
     const message = `Invalid value for ${err.path}: ${err.value}.`
     //returns or create AppError instance to represent an operational error
     return new AppError(message, 400)
 }
+// Handles duplicate entries or tour creation
+const duplicateKeyErrorHandler = (err) =>{
+    const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+    console.log(name)
 
-// const duplicateKeyErrorHandler = (err) =>{
-//     const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-//     console.log(value)
+    const message = `Theres is already a tour with name ${name}. Kindly use another name`
+    return new AppError(message, 400)
+}
 
-//     const message = `Theres is already a tour with name ${name}. Kindly use another name`
-//     return new AppError(msg, 400)
-// }
+const validationErrorHandler =(err) => {
+    const errors = Object.values(err.errors).map(val => val.message)
+    const message =`Invalid input data: ${errors.join('. ')}`
 
-// const validationErrorHandler =(err) => {
-//     const errors = Object.values(err.errors).map(val => val.message)
-//     const errorMessages = errors.join('. ')
-//     const message =`Invalid input data: $//{errorMessages}`
-
-//     return new AppError(message, 400)
+    return new AppError(message, 400)
     
-// }
+}
 // const handleExpiredJWT =(err) =>{
 //     return new AppError('JWT has expired, kindly login again', 401)
 // }
@@ -69,8 +69,8 @@ module.exports = (err, req, res, next) => {
 
 
         if(error.name === 'CastError') error = castErrorHandler(error);
-        // if(error.code == 11000) error = duplicateKeyErrorHandler(error);
-        // if(error.name == 'ValidationError') error = validationErrorHandler(error);
+        if(error.code == 11000) error = duplicateKeyErrorHandler(error);
+        if(error.name == 'ValidationError') error = validationErrorHandler(error);
         // if(error.name == 'TokenExpiredError') error = handleExpiredJWT(error);
         // if(error.name == 'JsonWebTokenError') error = handleJWTError(error);
 
