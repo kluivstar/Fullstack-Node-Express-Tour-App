@@ -58,13 +58,14 @@ module.exports = (error, req, res, next) => {
     if(process.env.NODE_ENV === 'development'){
         devErrors(res, error)
     } else if(process.env.NODE_ENV === 'production'){
-        
+        let error = {...error}
+
         if(error.name == 'CastError') error = castErrorHandler(error);
         if(error.code == 11000) error = duplicateKeyErrorHandler(error);
         if(error.name == 'ValidationError') error = validatioinErrorHandler(error);
         if(error.name == 'TokenExpiredError') error = handleExpiredJWT(error);
         if(error.name == 'JsonWebTokenError') error = handleJWTError(error);
         prodErrors(res, error)
-    
+    prodErrors(error, res)
 }
 }
