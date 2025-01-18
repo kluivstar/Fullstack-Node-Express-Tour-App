@@ -3,13 +3,14 @@ const mongoose = require('mongoose')
 // import dotenv - read variable from config which is then console logged
 const dotenv = require('dotenv')
 dotenv.config({path: './config.env'})
+
 // require express importing main express app from the app.js
 const app = require('./app')
 
-//Handing uncaught exceptions , happens sychrounsly
+//Handing uncaught exceptions
 process.on('uncaughtException', (err) =>{
-    console.log(err.name, err.message);
-    console.log('Uncaught Exception occured! Shutting down...')
+    console.log(err);
+    console.log('Uncaught Exception occured ❗ Shutting down...')
 
     process.exit(1)
 })
@@ -21,23 +22,23 @@ console.log(process.env)
 mongoose.connect(process.env.CONN_STR, {
     useNewUrlParser: true
 }).then((conn) => {
-    console.log('DB started something.')
+    console.log('DB Connection Successful 🔗')
 })
 
 // Create Server
 const port = process.env.PORT || 3000
 
 app.listen(port, ()=>{
-    console.log("Server wanna be startin something.")
+    console.log("Server Launch Successful 🚀")
 })
 
-// Handling Mongoose Validation Error
+// Handling Unhandled Rejection - Mongoose Validation Error
 process.on('unhandledRejection', (err) =>{
-    console.log(err.name, err.message);
-    console.log('Unhandled rejection occured! Shutting down..')
+    console.log(err);
+    console.log('Unhandled rejection occured ❗ Shutting down..')
 
+    // close server and shuts down the application
     server.close(()=> {
         process.exit(1)
     })
 })
-
