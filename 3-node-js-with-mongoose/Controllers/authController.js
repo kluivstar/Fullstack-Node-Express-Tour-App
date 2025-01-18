@@ -11,17 +11,17 @@ const signToken = id => {
     return jwt.sign({id}, process.env.SECRET_STR, {expiresIn: process.env.LOGIN_EXPIRES})
 }
 
-const createSendResponse = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id)
-    const options = {
+    const cookieOptions = {
         maxAge: process.env.LOGIN_EXPIRES,
         httpOnly: true
     }
 
     if(process.env.NODE_ENV === 'production')
-        options.secure = true;
+        cookieOptions.secure = true;
 
-    res.cookie('jwt', token, options)
+    res.cookie('jwt', token, cookieOptions)
     user.password = undefined
     
     // if a user is created
@@ -36,9 +36,14 @@ const createSendResponse = (user, statusCode, res) => {
 // RHF handles signing up a user
 // asyncErrorHandler catches error for exception i.e if a user is not created
 exports.signup = asyncErrorHandler(async (req, res, next) =>{
-    const newUser = await User.create(req.body)
+    const newUser = await User.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        passwordConfirm: req.body.passwordConfirm
+    })
 
-    createSendResponse(newUser, 201, res)
+    createSendToken(newUser, 201, res)
 })
 
 // RHF handles logging in a user
@@ -46,52 +51,56 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     const email = req.body.email
     const password = req.body.password
 
+    // Check if email/password exist
     if(!email || !password){
         const error = new AppError("Kindly enter an email or a password", 400)
         return next(error)
     }
 
+    // Check if user exist and password is correct
     const user = await User.findOne({email}).select('+password')
 
-    //const isMatch = await user.comparePasswordInDb(password, user.password)
-
+    // If user doesnt exist or password dont match
     if (!user || !(await user.comparePasswordInDb(password, user.password))){
         const error = new AppError('Incorrect credentials', 400)
         return next(error)
     }
-    createSendResponse(user, 200, res)
+    createSendToken(user, 200, res)
     
 })
 
 exports.protect = asyncErrorHandler(async (req, res, next) => {
-    // Read the token and check if it exist
-    const testToken = req.headers.authorization
+    // const testToken = req.headers.authorization
+
+    // Reads token and check if it exist
     let token
-    if(testToken && testToken.startsWith('Bearer')){
-        token = testToken.split(' ')[1]
+    if(req.headers.authorization && 
+        req.headers.authorization.startWith('Bearer')
+    ){
+        token = req.headers.authorization.split(' ')[1]
     }
     if(!token){
-        next(new AppError("You're not logged in", 400))
+        next(new AppError("You're not logged in! Kindly log in to access.", 400))
     }
 
-    // validate token
-    const decodedToken = await util.promisify(jwt.verify)(token, process.env.SECRET_STR)
+    // Validate token
+    const decodedToken = await promisify(jwt.verify)(token, process.env.SECRET_STR)
 
-    // if user exists
+    // If user exists
     const user = await User.findById(decodedToken.id)
     if(!user){
         const error = new AppError('The user with given token does not exist.', 401);
         next(error)
     };
 
-    // if user changed password after token was issued
+    // Check if user changed password after token was issued
     const isPasswordChanged = await user.isPasswordChanged(decodedToken.iat)
     if(isPasswordChanged){
         const error = new AppError("Password was changed resently, kindly login again", 401);
         return next(error);
     };
 
-    // allow user to access route
+    // Allow/Grant user access to protected route
     req.user = user;
     next();
 });
@@ -112,8 +121,8 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     // Get user based on posted email
     const user = await User.findOne({email: req.body.email});
     if(!user){
-        const error = new AppError("User doesnt exist..", 404);
-        return next(error);
+        return next(new AppError("User with this email doesnt exist..", 404));
+        
     }
     
     // Generate a random reset token
@@ -145,8 +154,12 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     // If the user exist with the given Tooken and Token has not expired
-    const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
-    const user = await User.findOne({passwordResetToken: token, passwordResetTokenExpires: {$gt: Date.now()}})
+    const hashedToken = crypto
+        .createHash('sha256')
+        .update(req.params.token)
+        .digest('hex');
+
+    const user = await User.findOne({passwordResetToken: hashedToken, passwordResetTokenExpires: {$gt: Date.now()}})
 
     if(!user){
         const error = new AppError('Token expired or invalid', 400)
@@ -163,6 +176,25 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     user.save()
     
     // Login the user
-    createSendResponse(user, 200, res)
+    createSendToken(user, 200, res)
 });
+
+exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
+    
+    // Get user from DB
+    const user = await User.findById(req.user.id).select('+password')
+    
+    // Checks if current password is correct
+    if(!(await user.correctPassword(req.body.passwordCurrent, user.password))){
+        return next(new AppError('Your current password is wrong', 401))
+    }
+
+    // If password is correct
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm
+    await user.save()
+
+    // Loin user, send JWT
+    createSendToken(user, 200, res)
+})
 
