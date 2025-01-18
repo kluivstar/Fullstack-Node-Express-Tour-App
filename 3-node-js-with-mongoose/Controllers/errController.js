@@ -2,13 +2,13 @@
 const AppError = require("../Utils/appError")
 
 // Send Dev errors to Developer/Engineer
-// DISPLAYS THIS IN ERROR RESPONSE FROM THE REQUEST BODY IN POSTMAN FOR EXAMPLE
+// Displays DEV Error - User make request - We get error details
 const sendDevError = (err, res) => {
     res.status(err.statusCode).json({
         status: err.status,
         message: err.message,
         stack: err.stack,
-        error: err // DISPLAY FULL ERROR IN RESPONSE
+        error: err // DISPLAYS FULL ERROR IN RESPONSE
     })
 }
 
@@ -19,18 +19,21 @@ const castErrorHandler = err => {
     return new AppError(message, 400)
 }
 
-// const duplicateKeyErrorHandler = (err) =>{
-//     const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-//     console.log(value)
+// Handle duplicate document creation
+const duplicateKeyErrorHandler = (err) =>{
+    const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+    console.log(value)
 
     const message = `Theres is already a tour with name ${name}. Kindly use another name`
     return new AppError(message, 400)
 }
-
-// const validationErrorHandler =(err) => {
-//     const errors = Object.values(err.errors).map(val => val.message)
-//     const errorMessages = errors.join('. ')
-//     const message =`Invalid input data: $//{errorMessages}`
+// Handles/Displays Validation Errors
+const validationErrorHandler =(err) => {
+    // val.message simply targets "error" obj ".message" property
+    const errors = Object.values(err.errors).map(val => val.message)
+    // join('. ') seperates the string in response message with . and space for readabilty
+    // send message from AppError to GEH
+    const message =`Invalid input data: ${errors.join('. ')}`
 
     return new AppError(message, 400)
     

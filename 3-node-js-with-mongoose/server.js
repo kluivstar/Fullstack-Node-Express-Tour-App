@@ -2,18 +2,19 @@ const mongoose = require('mongoose')
 
 // import dotenv - read variable from config which is then console logged
 const dotenv = require('dotenv')
-dotenv.config({path: './config.env'})
 
-// require express importing main express app from the app.js
-const app = require('./app')
-
-//Handing uncaught exceptions
+//Handing uncaught exceptions - called before requiring express app below
 process.on('uncaughtException', (err) =>{
     console.log(err);
     console.log('Uncaught Exception occured ❗ Shutting down...')
 
     process.exit(1)
 })
+
+dotenv.config({path: './config.env'})
+
+// require express importing main express app from the app.js
+const app = require('./app')
 
 //reading/loading our config file defining our environmental variable like CONN_STR
 console.log(process.env)
