@@ -65,7 +65,7 @@ const tourSchema = new mongoose.Schema({
     description: {
         type: String,
         trim: true,
-        required: [true, 'Description is a required field!']
+        required: [true, 'Description is a required field!']    
     },
     duration: {
         type: Number,

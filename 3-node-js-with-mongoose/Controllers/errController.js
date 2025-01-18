@@ -18,22 +18,19 @@ const castErrorHandler = err => {
     //returns or create AppError instance to represent an operational error
     return new AppError(message, 400)
 }
-// Handles duplicate entries or tour creation/creating a document that already exist(isOperational)
-const duplicateKeyErrorHandler = (err) =>{
-    // "err" signifies error object in Post Man for example when a user tries to create a duplicate document
-    const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-    console.log(name)
+
+// const duplicateKeyErrorHandler = (err) =>{
+//     const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+//     console.log(value)
 
     const message = `Theres is already a tour with name ${name}. Kindly use another name`
     return new AppError(message, 400)
 }
 
-const validationErrorHandler =(err) => {
-    // val.message simply targets "error" obj ".message" property
-    const errors = Object.values(err.errors).map(val => val.message)
-    // join('. ') seperates the string in response message with . and space for readabilty
-    // send message from AppError to GEH
-    const message =`Invalid input data: ${errors.join('. ')}`
+// const validationErrorHandler =(err) => {
+//     const errors = Object.values(err.errors).map(val => val.message)
+//     const errorMessages = errors.join('. ')
+//     const message =`Invalid input data: $//{errorMessages}`
 
     return new AppError(message, 400)
     
