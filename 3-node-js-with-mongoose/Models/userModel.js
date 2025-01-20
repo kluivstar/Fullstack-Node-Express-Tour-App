@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
         minlength: 8,
         select: false
     },
-    confirmPassword: {
+    passwordConfirm: {
         // validator checks if the value of confirmPassword matches the password field.
         type: String,
         required: [true, 'Please confirm your password'],
@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
             validator: function(val){
                 return val == this.password
             },
-            message: "Password and Confirm password don't match"
+            message: "Password do not match"
         }
     },
     active:  {

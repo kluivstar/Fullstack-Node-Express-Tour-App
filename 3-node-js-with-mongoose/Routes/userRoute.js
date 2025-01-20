@@ -5,6 +5,10 @@ const authController = require('./../Controllers/authController')
 // parsing incoming request
 const router = express.Router()
 
+// Auth Route
+router.post('/signup', authController.signup);
+
+
 // User Route
 router.route('/')
     .get(userController.getAllUsers)
