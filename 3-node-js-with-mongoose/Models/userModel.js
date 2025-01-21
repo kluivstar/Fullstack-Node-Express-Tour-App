@@ -52,11 +52,15 @@ const userSchema = new mongoose.Schema({
     
 })
 
+// Encrypts password before it is saved to DB
 userSchema.pre('save', async function(next){
     if(!this.isModified('password')) return next()
-        // encrypt password before saving it
+
+        // Encrypt/Hash password before saving it
         this.password = await bcrypt.hash(this.password, 12)
-        this.confirmPassword = undefined
+        
+        // Delete confirm password field
+        this.passwordConfirm = undefined
         next()
 })
 
@@ -66,16 +70,25 @@ userSchema.pre(/^find/, async function(next){
     next()
 })
 
-// logging in a user by comparing credentials
-userSchema.methods.comparePasswordInDb = async function(pswd, pswdDB){
-    return await bcrypt.compare(pswd, pswdDB)
+// Verifies if password entered matches hashed password in DB
+// userSchema.methods.comparePasswordInDb = async function(pswd, pswdDB){
+//     return await bcrypt.compare(pswd, pswdDB)
+// }
+
+// Instance method -Verifies if password entered matches hashed password in DB - Authenticate users during login (correctPassword).
+userSchema.methods.correctPassword = async function(
+    candidatePassword, // Raw password entered by user
+    userPassword // Hashed password
+) {
+    // Hashes and returns 'true' if match
+    return await bcrypt.compare(candidatePassword, userPassword)
 }
 
+// Determine if the user's password has been changed after a given JWT token was issued - check the validity of a JWT during authentication
 userSchema.methods.isPasswordChanged = async function(JWTTimestamp) {
     if(this.passwordChangedAt){
         const pswdChangedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000)
-        console.log(pswdChangedTimestamp, JWTTimestamp)
-
+        
         return JWTTimestamp < pswdChangedTimestamp
     }
     return false

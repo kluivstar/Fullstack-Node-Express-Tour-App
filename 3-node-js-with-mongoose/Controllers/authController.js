@@ -6,12 +6,14 @@ const util = require('util')
 const sendEmail = require('./../Utils/email')
 const crypto = require('crypto')
 
-// reuseable sign Token 
+// Reuseable sign Token 
 const signToken = id => {
     return jwt.sign({id}, process.env.SECRET_STR, {expiresIn: process.env.LOGIN_EXPIRES})
 }
 
 const createSendToken = (user, statusCode, res) => {
+    // signToken adds jwt to received 'user' 
+    // user._id is the payload to add to jwt
     const token = signToken(user._id)
     const cookieOptions = {
         maxAge: process.env.LOGIN_EXPIRES,
@@ -58,13 +60,17 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     }
 
     // Check if user exist and password is correct
+    // '+' adds/selects the previously hidden password in schema to the query/ouput
     const user = await User.findOne({email}).select('+password')
 
     // If user doesnt exist or password dont match
-    if (!user || !(await user.comparePasswordInDb(password, user.password))){
+    // 'correctPassword' - schema/instance method that checks passwords
+    // Authenticate users during login (correctPassword).
+    if (!user || !(await user.correctPassword(password, user.password))){
         const error = new AppError('Incorrect credentials', 400)
         return next(error)
     }
+    // If user with email and password exist, login user
     createSendToken(user, 200, res)
     
 })
@@ -79,6 +85,8 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     ){
         token = req.headers.authorization.split(' ')[1]
     }
+    console.log(token)
+    // If there not token in request = not logged in
     if(!token){
         next(new AppError("You're not logged in! Kindly log in to access.", 400))
     }
