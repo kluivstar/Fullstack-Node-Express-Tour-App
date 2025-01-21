@@ -70,11 +70,6 @@ userSchema.pre(/^find/, async function(next){
     next()
 })
 
-// Verifies if password entered matches hashed password in DB
-// userSchema.methods.comparePasswordInDb = async function(pswd, pswdDB){
-//     return await bcrypt.compare(pswd, pswdDB)
-// }
-
 // Instance method -Verifies if password entered matches hashed password in DB - Authenticate users during login (correctPassword).
 userSchema.methods.correctPassword = async function(
     candidatePassword, // Raw password entered by user
@@ -85,12 +80,13 @@ userSchema.methods.correctPassword = async function(
 }
 
 // Determine if the user's password has been changed after a given JWT token was issued - check the validity of a JWT during authentication
-userSchema.methods.isPasswordChanged = async function(JWTTimestamp) {
+userSchema.methods.changedPasswordAfter = async function(JWTTimestamp) {
     if(this.passwordChangedAt){
-        const pswdChangedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000)
+        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000)
         
-        return JWTTimestamp < pswdChangedTimestamp
+        return JWTTimestamp < changedTimestamp
     }
+    // False means not changed
     return false
 }
 

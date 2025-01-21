@@ -2,7 +2,7 @@ const User = require('./../Models/userModel')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 const jwt = require('jsonwebtoken')
 const AppError = require('../Utils/appError')
-const util = require('util')
+const {promisify} = require('util')
 const sendEmail = require('./../Utils/email')
 const crypto = require('crypto')
 
@@ -81,11 +81,10 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     // Reads token and check if it exist
     let token
     if(req.headers.authorization && 
-        req.headers.authorization.startWith('Bearer')
+        req.headers.authorization.startsWith('Bearer')
     ){
         token = req.headers.authorization.split(' ')[1]
     }
-    console.log(token)
     // If there not token in request = not logged in
     if(!token){
         next(new AppError("You're not logged in! Kindly log in to access.", 400))
@@ -95,22 +94,23 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     const decodedToken = await promisify(jwt.verify)(token, process.env.SECRET_STR)
 
     // If user exists
-    const user = await User.findById(decodedToken.id)
-    if(!user){
+    const currentUser = await User.findById(decodedToken.id)
+    if(!currentUser){
         const error = new AppError('The user with given token does not exist.', 401);
         next(error)
     };
 
-    // Check if user changed password after token was issued
-    const isPasswordChanged = await user.isPasswordChanged(decodedToken.iat)
-    if(isPasswordChanged){
-        const error = new AppError("Password was changed resently, kindly login again", 401);
-        return next(error);
-    };
+    // Check if user changed password after token was issued by calling User.isPasswordChanged instance
+    if (currentUser.changedPasswordAfter(decodedToken.iat)) {
+        return next(
+          new AppError('User recently changed password! Please log in again.', 401)
+        );
+      }
 
-    // Allow/Grant user access to protected route
-    req.user = user;
+    // Allow/Grant user access to protected route by calling getAllUser or any route
+    req.user = currentUser;
     next();
+    
 });
 
 exports.restrict = (role) => {

@@ -38,12 +38,15 @@ const validationErrorHandler =(err) => {
     return new AppError(message, 400)
     
 }
-// const handleExpiredJWT =(err) =>{
-//     return new AppError('JWT has expired, kindly login again', 401)
-// }
-// const handleJWTError =(err) =>{
-//     return new AppError('Invalid token, kindly login again', 401)
-// }
+// Handles token expiration in prod
+const handleExpiredJWT =() =>{
+    return new AppError('JWT has expired, kindly login again', 401)
+}
+
+// Handles error/invalid token in prod
+const handleJWTError =() =>{
+    return new AppError('Invalid token, kindly login again', 401)
+}
 
 // Production Error Handler - Send Operational Errors to clients
 const sendProdError = (err, res) => {
@@ -56,7 +59,7 @@ const sendProdError = (err, res) => {
     } else {
         res.status(500).json({
             status: 'error',
-            message: 'Something went wrong....'
+            message: 'Something went wrong.'
         })
     }
 }
@@ -77,8 +80,8 @@ module.exports = (err, req, res, next) => {
         if(error.name === 'CastError') error = castErrorHandler(error);
         if(error.code == 11000) error = duplicateKeyErrorHandler(error);
         if(error.name == 'ValidationError') error = validationErrorHandler(error);
-        // if(error.name == 'TokenExpiredError') error = handleExpiredJWT(error);
-        // if(error.name == 'JsonWebTokenError') error = handleJWTError(error);
+        if(error.name == 'TokenExpiredError') error = handleExpiredJWT();
+        if(error.name == 'JsonWebTokenError') error = handleJWTError();
 
         sendProdError(error, res)
     
