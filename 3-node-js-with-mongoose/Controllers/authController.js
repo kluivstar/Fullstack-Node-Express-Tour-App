@@ -100,7 +100,7 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
         next(error)
     };
 
-    // Check if user changed password after token was issued by calling User.isPasswordChanged instance
+    // Check if user changed password after token was issued by calling User.changedPasswordAfter instance
     if (currentUser.changedPasswordAfter(decodedToken.iat)) {
         return next(
           new AppError('User recently changed password! Please log in again.', 401)
@@ -108,6 +108,7 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
       }
 
     // Allow/Grant user access to protected route by calling getAllUser or any route
+    // req used to put stuff on request object that will be available at a later point
     req.user = currentUser;
     next();
     

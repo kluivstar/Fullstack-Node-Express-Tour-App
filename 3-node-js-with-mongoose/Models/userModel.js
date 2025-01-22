@@ -52,6 +52,8 @@ const userSchema = new mongoose.Schema({
     
 })
 
+// INSTANCE METHODS
+
 // Encrypts password before it is saved to DB
 userSchema.pre('save', async function(next){
     if(!this.isModified('password')) return next()
@@ -70,7 +72,7 @@ userSchema.pre(/^find/, async function(next){
     next()
 })
 
-// Instance method -Verifies if password entered matches hashed password in DB - Authenticate users during login (correctPassword).
+// Instance method - Verifies if password entered matches hashed password in DB - Authenticate users during login (correctPassword).
 userSchema.methods.correctPassword = async function(
     candidatePassword, // Raw password entered by user
     userPassword // Hashed password
@@ -79,15 +81,18 @@ userSchema.methods.correctPassword = async function(
     return await bcrypt.compare(candidatePassword, userPassword)
 }
 
-// Determine if the user's password has been changed after a given JWT token was issued - check the validity of a JWT during authentication
-userSchema.methods.changedPasswordAfter = async function(JWTTimestamp) {
+// For protect RHF
+// The method checks if the token was issued before the password was changed. If it was, the token is no longer valid because the user’s credentials have changed.
+// changedPasswordAfter is called during jwt auth when a used makes a request
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
+    // if a user changes their password, passwordChangedAt exists
     if(this.passwordChangedAt){
-        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000)
+        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10)
         
-        return JWTTimestamp < changedTimestamp
+        return JWTTimestamp < changedTimestamp // Is token issued before password change?
     }
-    // False means not changed
-    return false
+
+    return false // false means valid-password did not change-jwToken issued after password changed(false) not before(true)
 }
 
 //
