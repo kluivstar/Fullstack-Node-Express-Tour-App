@@ -142,8 +142,9 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
         
     }
     
-    // Generate a random reset token
+    // createResetPasswordToken() generates a random encrypted reset token
     const resetToken = user.createResetPasswordToken();
+    // Deactivate validators in schema
     await user.save({validateBeforeSave: false});
 
     // Send the token back to the user email...
@@ -151,6 +152,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     const message = `We received a password reset request. Kindly use the link below to reset your password\n\n${resetUrl}\n\nThis reset password link will be valid only for 10 minutes`;
 
     try{
+        // sendEmail utility function sends the mail with reset url in message
         await sendEmail({
             email: user.email,
             subject: 'Password changed request received',
@@ -162,7 +164,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
             });
     }catch(err){
         user.passwordResetToken = undefined;
-        user.passwordResetTokenExpires = undefined;
+        user.passwordResetExpires = undefined;
         user.save({validateBeforeSave: false});
         return next(new AppError('There was an error sending password reset email, kindly try again later', 500));
     };
@@ -170,13 +172,14 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
-    // If the user exist with the given Tooken and Token has not expired
+    // Recieved token in req is hashed ,if the user exist with the given Token and Token has not expired
     const hashedToken = crypto
         .createHash('sha256')
         .update(req.params.token)
         .digest('hex');
 
-    const user = await User.findOne({passwordResetToken: hashedToken, passwordResetTokenExpires: {$gt: Date.now()}})
+        // Hashed token is then compared with the passwordResetToken(also hashed) stored in the database and checked against the expiration time
+    const user = await User.findOne({passwordResetToken: hashedToken, passwordResetExpires: {$gt: Date.now()}})
 
     if(!user){
         const error = new AppError('Token expired or invalid', 400)
@@ -187,7 +190,7 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     user.password = req.body.password
     user.confirmPassword = req.body.confirmPassword
     user.passwordResetToken = undefined
-    user.passwordResetTokenExpires = undefined
+    user.passwordResetExpires = undefined
     user.passwordChangedAt = Date.now()
 
     user.save()
@@ -199,6 +202,7 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
 exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
     
     // Get user from DB
+    // 'req.user' from protect MW
     const user = await User.findById(req.user.id).select('+password')
     
     // Checks if current password is correct

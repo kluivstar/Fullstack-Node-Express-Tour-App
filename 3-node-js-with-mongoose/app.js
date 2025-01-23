@@ -63,7 +63,7 @@ app.use('/auth', authRouter)
 app.use('/users', userRoute)
 app.use('/tours', tourRoute)
 
-// defining route for non existent URLS/Wild card route
+// defining route for non existent urls - Wild card route
 app.all('*', (req, res, next) => {
     const err = new AppError(`Cant find ${req.originalUrl} on the server!`, 404)
     // Passes err to Global Error Handler

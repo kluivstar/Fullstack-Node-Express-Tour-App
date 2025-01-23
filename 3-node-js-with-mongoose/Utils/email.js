@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (option)=> {
+    // 1. Create Transporter
     const transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
@@ -14,14 +15,14 @@ const sendEmail = async (option)=> {
         debug: true
     });
 
-    // Define Email Options
+    // 2. Define Email Options
     const emailOptions = {
-        from: 'Cineflex support<support@cineflix.com>',
+        from: 'Sins support<support@sins.com>',
         to: option.email,
         subject: option.subject,
         text: option.message
     }
-    // verify connection configuration
+    // 3. Verify connection configuration - optional
     transporter.verify(function (error, success) {
         if (error) {
         console.log(error);
@@ -30,6 +31,7 @@ const sendEmail = async (option)=> {
         }
     });
     
+    // 4. Actually send the mail
     await transporter.sendMail(emailOptions)
 };
 
