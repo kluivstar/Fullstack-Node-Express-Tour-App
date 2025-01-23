@@ -35,20 +35,25 @@ const createSendToken = (user, statusCode, res) => {
         }
     })
 }
-// RHF handles signing up a user
+// Sign up Middleware
 // asyncErrorHandler catches error for exception i.e if a user is not created
 exports.signup = asyncErrorHandler(async (req, res, next) =>{
+    const { name, email, password, passwordConfirm, role } = req.body;
+
+    // Log the role value separately
+    console.log('Role:', role); // Ensure the role is correct
     const newUser = await User.create({
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm
+        passwordConfirm: req.body.passwordConfirm,
+        role: role || 'user' // Defaults to user is role is not provided
     })
-
+    
     createSendToken(newUser, 201, res)
 })
 
-// RHF handles logging in a user
+// Login Middleware
 exports.login = asyncErrorHandler(async (req, res, next) => {
     const email = req.body.email
     const password = req.body.password
@@ -75,6 +80,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     
 })
 
+// Protect or a JWT authentication middleware
 exports.protect = asyncErrorHandler(async (req, res, next) => {
     // const testToken = req.headers.authorization
 
@@ -114,13 +120,15 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     
 });
 
-exports.restrict = (role) => {
+// Restrict Middleware - If the user is authenticated and has the admin role, the route handler runs.
+// The protect middleware ensures that the user is authenticated and populates "req.user" stored in protect MW.
+exports.restrict = (...roles) => {
     return (req, res, next) => {
-        if(req.user.role !== role){
-            const error = new AppError("You do not have permission to perform this action..", 403);
-            next(error);
+        if(!roles.includes(req.user.role)) {
+            return next(
+                new AppError("You do not have permission to perform this action..", 403));
         }
-        // allows user delete movie if role is admin by called the next MW "deleteMovie"
+        // allows user delete tour if role is admin by calling the next MW "deleteTour"
         next();
     }
 };
