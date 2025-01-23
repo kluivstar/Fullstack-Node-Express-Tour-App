@@ -45,7 +45,9 @@ exports.updateUser = asyncErrorHandler(async (req, res, next) => {
         )
     }
 
+    // Allow only name and email to be updated - Filters out unwantd fields name that are not allowed to be updated
     const filteredBody = filterReqObj(req.body, 'name', 'email')
+    // Update user
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
         new: true,
         runValidators: true
@@ -68,23 +70,4 @@ exports.deleteUser = asyncErrorHandler(async(req, res, next) => {
         data: null
     })
 })
-// Update User Password
-// exports.updatePassword = asyncErrorHandler(async(req, res, next) => {
-//     // Get current user data from database
-//     const user = await User.findById(req.user._id).select('+password')
-
-//     // check if the supplied current password is correct
-//     if(!(await user.comparePasswordInDb(req.body.currentPassword, user.password))){
-//         return next(new AppError('The current password you provided is wrong', 401))
-//     }
-
-//     // If supplied password is correct, update user password with new value
-//     user.password = req.body.password
-//     user.confirmPassword = req.body.confirmPassword
-//     await user.save()
-
-//     // Login user and send JWT
-//     createSendResponse(user, 200, res)
-// })
-
 

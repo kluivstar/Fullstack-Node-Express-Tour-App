@@ -12,12 +12,12 @@ const router = express.Router()
     router.patch('/resetPassword/:token', authController.resetPassword);
     router.patch('/updatePassword', authController.protect, authController.updatePassword)
 
-// Protect all route after this middleware
-    // router.use(authController.protect)
+// Protect all route after this middleware - SETS req.user object
+    router.use(authController.protect)
 
     // router.patch('/updatePassword', authController.updatePassword)
     // router.get('/getUser', userController.getUser)
-    // router.patch('/updateUser', userController.updateUser)
+    router.patch('/updateUser', userController.updateUser)
     // router.delete('/deleteUser', userController.deleteUser)
 
 // User Route

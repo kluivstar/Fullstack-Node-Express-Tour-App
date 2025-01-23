@@ -188,12 +188,12 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
 
     // Resetting the user password
     user.password = req.body.password
-    user.confirmPassword = req.body.confirmPassword
+    user.passwordConfirm = req.body.passwordConfirm
     user.passwordResetToken = undefined
     user.passwordResetExpires = undefined
     user.passwordChangedAt = Date.now()
 
-    user.save()
+    await user.save()
     
     // Login the user
     createSendToken(user, 200, res)
