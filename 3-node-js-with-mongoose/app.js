@@ -14,31 +14,42 @@ const tourRoute = require('./Routes/tourRoutes')
 const AppError = require('./Utils/appError')
 const globalErrorHandler = require('./Controllers/errController')
 
-// custom middleware function that logs a message whenever a request hits your server. It calls next() to pass control to the next middleware in the stack.
-//const logger =  function(req, res, next) {
-  // console.log('Custom middleware called')
-    //next()
-//}
 
-// Middleware that parse incoming JSON request
+// Body parser - reading data from body into req.body- Middleware that parse incoming JSON request
 app.use(express.json({limit: '10kb'}))
 
-// using Santize and XSS - Clean
+// Serving static files
+app.use(express.static('./Public'))
+
+// Data Santization against NoSql query inject
 app.use(sanitize())
+
+// Data Santization against XSS -  Cleans user inputs for malicious code(e.g during login)
 app.use(xss())
-app.use(hpp())
-//if(process.env.NODE_ENV === 'development'){
-  //  app.use(morgan('dev'))
-//}
+
+// Prevent parameter pollution
+app.use(hpp({
+  // The whitelist option allows you to specify parameters that should not be sanitized by the middleware.
+  whitelist: [
+    'duration',
+    'ratingQuantity',
+    'ratingsAverage',
+    'maxGroupSize',
+    'difficulty',
+    'price'
+  ]
+}))
+
+// Development logging
+if(process.env.NODE_ENV === 'development'){
+   app.use(morgan('dev'))
+}
 
 // The logger middleware function defined earlier is then added, logging "Custom middleware called" on every request.
 //app.use(logger)
 
-//To serve static files
-app.use(express.static('./Public'))
-
-// Helmet
-app.use(helmet())
+// Helmet - Set security HTTP header
+app.use(helmet()) 
 
 // Rate limit
 let limiter = rateLimit({
@@ -50,6 +61,7 @@ let limiter = rateLimit({
 // Using the limiter
 app.use('/user', limiter)
 app.use('/auth', limiter)
+app.use('/tour', limiter)
 
 // This middleware adds a requestedAt property to the request object, containing the timestamp of when the request was made.
 //app.use((req, res, next) =>{

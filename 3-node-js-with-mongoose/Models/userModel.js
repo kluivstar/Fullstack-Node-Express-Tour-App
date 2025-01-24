@@ -42,8 +42,8 @@ const userSchema = new mongoose.Schema({
     },
     active:  {
         type: Boolean,
-        default: true,
-        select: false
+        default: true, // Every new user is an active user
+        select: false // hides field
     },
 
     passwordChangedAt: Date,
@@ -76,7 +76,7 @@ userSchema.pre('save', async function(next){
         next()
 })
 
-// * Instance runs before query in getAllUsers RHF to get active users
+// * Instance runs before query in getAllUsers RHF to get active users excluding deleted(inactive) users
 userSchema.pre(/^find/, async function(next){
     this.find({active: {$ne: false}})
     next()

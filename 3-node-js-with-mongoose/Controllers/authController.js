@@ -16,7 +16,9 @@ const createSendToken = (user, statusCode, res) => {
     // user._id is the payload to add to jwt
     const token = signToken(user._id)
     const cookieOptions = {
-        maxAge: process.env.LOGIN_EXPIRES,
+        expires: new Date(
+            Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+        ),
         httpOnly: true
     }
 

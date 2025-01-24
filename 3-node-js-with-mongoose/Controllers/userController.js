@@ -31,6 +31,12 @@ exports.getAllUsers = asyncErrorHandler(async(req, res, next) => {
     })
 })
 
+exports.createUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: "This route is not defind, use /signup instead"
+    })
+}
 // Get Specific User
 exports.getUser = asyncErrorHandler(async(req, res, next) => {
     req.params.id = req.user.id
