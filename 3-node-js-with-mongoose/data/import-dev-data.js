@@ -3,15 +3,10 @@ const mongoose = require('mongoose')
 // import dotenv
 const dotenv = require('dotenv')
 
-//reading/loading our config file defining our environmental variable like CONN_STR
+// Reading/loading our config file defining our environmental variable like CONN_STR
 dotenv.config({path: './config.env'})
 
 const Tour = require('./../Models/tourModel')
-
-// const DB = process.env.DATABASE.replace(
-//     '<PASSWORD',
-//     process.env.DATABASE_PASSWORD
-// )
 
 mongoose.connect(process.env.CONN_STR, {
     useNewUrlParser: true,
@@ -21,7 +16,8 @@ mongoose.connect(process.env.CONN_STR, {
     console.log(error)
 })
 
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'))
+// Read mock tour file
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'))
 
 const deleteTour = async ()=> {
     try {
@@ -33,6 +29,10 @@ const deleteTour = async ()=> {
     process.exit()
 }
 
+// To import mock data to DB first run node ./data/import-dev-data.json --delete
+
+// Then node ./data/import-dev-data.json -- import
+
 const importData = async ()=> {
     try {
         await Tour.create(tours)
@@ -43,8 +43,13 @@ const importData = async ()=> {
     process.exit()
 }
 
+// Delete Prev data and import new one
 if(process.argv[2] === '--import'){
     importData()
 } else if(process.argv[2] === '--delete'){
     deleteTour()
 }
+
+// To import mock data to DB first run node ./data/import-dev-data.json --delete
+
+// Then node ./data/import-dev-data.json -- import
