@@ -3,6 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const slugify = require('slugify')
+const User = require('./userModel')
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -92,7 +93,8 @@ const tourSchema = new mongoose.Schema({
             default: 'Point',
             enum: ['Point']
         },
-        coordinates: [Number],
+        coordinates: 
+            [Number],
             address: String,
             description: String
     },
@@ -129,8 +131,12 @@ tourSchema.virtual('durutionWeeks').get(function(){
     return this.duration / 7
 })
 
-// 'this' points to the current query if in query middleware, or aggregation if in aggreation middleware etc
+tourSchema.pre('save', async function(next) {
+    const guidesPromises = this.guides.map(async id => await User.findById(id))
+    this.guides = await Promise.all(guidesPromises)
 
+    next()
+})
 
 // DOCUMENT MIDDLEWARE: runs before a document is saved
 // Generates a slug for each document, ensure they have a URL friendly identifier (slug) based on name

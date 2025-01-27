@@ -16,9 +16,10 @@ mongoose.connect(process.env.CONN_STR, {
     console.log(error)
 })
 
-// Read mock tour file
+// Read mock "tour" data
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'))
 
+// Delete tour function
 const deleteTour = async ()=> {
     try {
         await Tour.deleteMany()
@@ -33,6 +34,7 @@ const deleteTour = async ()=> {
 
 // Then node ./data/import-dev-data.json -- import
 
+// Import tour data
 const importData = async ()=> {
     try {
         await Tour.create(tours)
