@@ -10,6 +10,7 @@ const hpp = require('hpp')
 const authRouter = require('./Routes/authRouter')
 const userRoute = require('./Routes/userRoute')
 const tourRoute = require('./Routes/tourRoutes')
+const reviewRoute = require('./Routes/reviewRoutes')
 const AppError = require('./Utils/appError')
 const globalErrorHandler = require('./Controllers/errController')
 
@@ -73,6 +74,7 @@ app.use('/tour', limiter)
 app.use('/auth', authRouter)
 app.use('/users', userRoute)
 app.use('/tours', tourRoute)
+app.use('/reviews', reviewRoute)
 
 // defining route for non existent urls - Wild card route
 app.all('*', (req, res, next) => {
