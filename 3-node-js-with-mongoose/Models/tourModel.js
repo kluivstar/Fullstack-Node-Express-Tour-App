@@ -131,14 +131,6 @@ tourSchema.virtual('durutionWeeks').get(function(){
     return this.duration / 7
 })
 
-// Connect tours and users by embedding
-// tourSchema.pre('save', async function(next) {
-//     const guidesPromises = this.guides.map(async id => await User.findById(id))
-//     this.guides = await Promise.all(guidesPromises)
-
-//     next()
-// })
-
 // DOCUMENT MIDDLEWARE: runs before a document is saved
 // Generates a slug for each document, ensure they have a URL friendly identifier (slug) based on name
 tourSchema.pre('save', function(next){
@@ -146,11 +138,11 @@ tourSchema.pre('save', function(next){
     next()
 })
 
-// tourSchema.virtual('reviews', {
-//     ref: 'Review',
-//     foreignField: 'tour',
-//     localField: '_id'
-// })
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+})
 
 // QUERY MIDDLEWARE: runs before a query "find" query on the Tour model.
 // '/^find/' executes on all find query unlike using 'find'
