@@ -18,7 +18,7 @@ const reviewSchema = new mongoose.Schema(
             type: Date,
             default: Date.now
         },
-
+        photo: String,
         tour: {
             type: mongoose.Schema.ObjectId,
             ref: 'Tour',
@@ -38,6 +38,18 @@ const reviewSchema = new mongoose.Schema(
     }
     );
 
+reviewSchema.pre(/^find/, function(next){
+    // this points to the current query
+    this.populate({
+        path: 'tour',
+        select: 'name photo'
+    }).populate({
+        path: 'user',
+        select: "name photo"
+    })
+    
+    next()
+})
 
 
 const Review = mongoose.model('Review', reviewSchema)
