@@ -114,7 +114,7 @@ const tourSchema = new mongoose.Schema({
     
     guides: [
         {
-            type: mongoose.Schema.ObjectId,
+            type: mongoose.Schema.ObjectId, // Referencing - shows guides Ids in doc
             ref: 'User'
         }
     ]
@@ -131,6 +131,7 @@ tourSchema.virtual('durutionWeeks').get(function(){
     return this.duration / 7
 })
 
+// Connect tours and users by embedding
 // tourSchema.pre('save', async function(next) {
 //     const guidesPromises = this.guides.map(async id => await User.findById(id))
 //     this.guides = await Promise.all(guidesPromises)
@@ -153,11 +154,23 @@ tourSchema.pre('save', function(next){
 
 // QUERY MIDDLEWARE: runs before a query "find" query on the Tour model.
 // '/^find/' executes on all find query unlike using 'find'
-tourSchema.pre('/^find/', function(next){
+tourSchema.pre(/^find/, function(next){
     this.find({secretTour: {$ne: true}})
     this.start = Date.now()
     next()
 })
+
+// populate query middleware - populate guides data rather than just displaying their IDs
+tourSchema.pre(/^find/, function(next){
+    // this points to the current query
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+    })
+    
+    next()
+})
+
 
 // AGGREGATION MIDDLEWARE: $match ensure only document with false secretTours are included in aggregation results
 tourSchema.pre('aggregate', function(next){
