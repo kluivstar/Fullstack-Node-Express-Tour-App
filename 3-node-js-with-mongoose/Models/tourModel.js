@@ -138,10 +138,14 @@ tourSchema.pre('save', function(next){
     next()
 })
 
+// Define a virtual field in the Tour schema to "reference" Review documents.
 tourSchema.virtual('reviews', {
     ref: 'Review',
-    foreignField: 'tour',
-    localField: '_id'
+    // Connects both models - Tour and Review
+    // References the tour field in review model
+    foreignField: 'tour', // field in reference/review model where ID of tour is stored
+    localField: '_id' // current model "tour"
+    
 })
 
 // QUERY MIDDLEWARE: runs before a query "find" query on the Tour model.

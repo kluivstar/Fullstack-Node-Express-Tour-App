@@ -41,9 +41,6 @@ const reviewSchema = new mongoose.Schema(
 reviewSchema.pre(/^find/, function(next){
     // this points to the current query
     this.populate({
-        path: 'tour',
-        select: 'name photo'
-    }).populate({
         path: 'user',
         select: "name photo"
     })
