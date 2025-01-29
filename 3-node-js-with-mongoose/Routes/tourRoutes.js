@@ -1,9 +1,15 @@
 const express = require('express')
 const tourController = require('./../Controllers/tourControllers')
 const authController = require('./../Controllers/authController')
-const reviewController = require('../Controllers/reviewsController')
+const reviewRouter = require('./../Routes/reviewRoutes')
 const router = express.Router()
 
+// from tourRouter in app.js all tours queries matching /:tourId/reviews is rerouted to reviewRouter
+router.use('/:tourId/reviews', reviewRouter)
+
+///////////////
+
+// Tour routes
 router
     .route('/monthly-plan/:year')
     .get(tourController.getMonthlyPlan)
@@ -28,10 +34,5 @@ router
     .delete(authController.protect, authController.restrict('admin', 'lead-guide', 'guide'),tourController.deleteTour)
 
 
-//////
-
-router
-    .route('/:tourId/reviews')
-    .post(authController.protect, authController.restrict('user'), reviewController.createReview)
-        
+   
 module.exports = router
