@@ -1,14 +1,13 @@
 const Review = require('../Models/reviewsModel')
+const AppError = require('./../Utils/appError')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
+const APIFeatures = require('./../Utils/apiFeatures');
 
-// exports.setTourUserIds = (req, res, next) => {
-//     if(!req.body.tour) req.body.tour = req.params.setTourId
-//     if(!req.body.user) req.body.user = req.user.id
-//     next()
-// }
+exports.getAllReviews = asyncErrorHandler(async (req, res, next) => {
+    let filter = {}
+    if (req.params.tourId) filter = { tour: req.params.tourId}
 
-exports.getAllReviews = asyncErrorHandler( async(req, res, next) => {
-    const reviews = await Review.find()
+    const reviews = await Review.find(filter)
 
     res.status(200).json({
         status: "success",
