@@ -6,6 +6,7 @@ const util = require('util')
 const sendEmail = require('./../Utils/email')
 const crypto = require('crypto')
 const authController = require('./authController')
+const factory = require('./handlerFactory')
 
 // Filter through only allow fields during User update
 const filterReqObj = (obj, ...allowedFields) => {
@@ -68,12 +69,5 @@ exports.updateUser = asyncErrorHandler(async (req, res, next) => {
 })
 
 // Deletes User Profile
-exports.deleteUser = asyncErrorHandler(async(req, res, next) => {
-    await User.findByIdAndUpdate(req.user.id, {active: false})
-
-    res.status(204).json({
-        status: "success",
-        data: null
-    })
-})
+exports.deleteUser = factory.deleteOne(User)
 
