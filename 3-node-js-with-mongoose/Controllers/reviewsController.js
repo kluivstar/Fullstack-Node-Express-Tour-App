@@ -11,7 +11,7 @@ exports.getAllReviews = asyncErrorHandler(async (req, res, next) => {
 
     res.status(200).json({
         status: "success",
-        results: reviews.length,
+        results: reviews.length, // number of reviews found
         data: {
             reviews
         }
