@@ -18,31 +18,13 @@ const filterReqObj = (obj, ...allowedFields) => {
     return newObj
 }
 
-// Get All Users
-exports.getAllUsers = asyncErrorHandler(async(req, res, next) => {
-    // Get current user data from database
-    const users = await User.find()
-
-    res.status(200).json({
-        status: "success",
-        result: users.length,
-        data: {
-            users
-        }
-    })
-})
-
 exports.createUser = (req, res) => {
     res.status(500).json({
         status: 'error',
         message: "This route is not defind, use /signup instead"
     })
 }
-// Get Specific User
-exports.getUser = asyncErrorHandler(async(req, res, next) => {
-    req.params.id = req.user.id
-    next()
-})
+
 
 // Update User
 exports.updateMe = asyncErrorHandler(async (req, res, next) => {
@@ -68,11 +50,9 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
     })
 })
 
+exports.getAllUsers = factory.getAll(User)
 exports.getUser = factory.getOne(User)
-
 // Update User - Only for admin - Do not update password with this
 exports.updateUser = factory.updateOne(User)
-
-// Delete User
 exports.deleteUser = factory.deleteOne(User)
 

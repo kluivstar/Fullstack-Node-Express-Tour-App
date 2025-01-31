@@ -4,15 +4,40 @@ const APIFeatures = require('../Utils/apiFeatures')
 const AppError = require("../Utils/appError")
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 
+// Get All Document
+exports.getAll = Model => asyncErrorHandler(async (req, res, next) => {
+    let filter = {}
+    if(req.params.tourId) filter = {tour: req.params.tourId}
+    const features = new APIFeatures(Model.find(filter), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate()
+
+    
+    // Execute Query
+    const doc = await features.query
+
+    res.status(200).json({
+        status: 'success',
+        results: doc.length,
+        data: {
+            data: doc
+            }
+        })
+    } 
+)
+
+// Get Single Document
 exports.getOne = (Model, popOptions) => asyncErrorHandler(async (req, res, next) => {
     let query = Model.findById(req.params.id)
     if (popOptions) query = query.populate(popOptions)
     const doc = await query;
 
     if(!doc){
-        return next(AppError('No document found with that ID', 404))
+        return next(new AppError('No document found with that ID', 404))
     }
-    
+
     res.status(201).json({
         status: "success",
         data: {
@@ -21,6 +46,7 @@ exports.getOne = (Model, popOptions) => asyncErrorHandler(async (req, res, next)
     })
 })
 
+// Create Document
 exports.createOne = Model => asyncErrorHandler(async (req, res, next) => {
     
     const doc = await Model.create(req.body)
@@ -32,6 +58,7 @@ exports.createOne = Model => asyncErrorHandler(async (req, res, next) => {
     })
 })
 
+// Update Document
 exports.updateOne = Model => asyncErrorHandler(async (req, res, next) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
@@ -51,6 +78,7 @@ exports.updateOne = Model => asyncErrorHandler(async (req, res, next) => {
 
 })
 
+// Delete Document
 exports.deleteOne = Model => asyncErrorHandler(async (req, res) => {
     const doc = await Model.findByIdAndDelete(req.params.id)
     if(!doc) {

@@ -32,7 +32,7 @@ exports.getAllTours = asyncErrorHandler(async (req, res, next) => {
         })
     } 
 )
-
+exports.getAllTours = factory.getAll(Tour)
 exports.getTour = factory.getOne(Tour, {path: 'reviews'})
 
 exports.createTour = factory.createOne(Tour)
