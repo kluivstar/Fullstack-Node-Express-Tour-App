@@ -18,6 +18,7 @@ const router = express.Router()
 
     // router.patch('/updatePassword', authController.updatePassword)
     // router.get('/getUser', userController.getUser)
+    router.get('/me', userController.getMe, userController.getUser)
     router.patch('/updateUser', userController.updateUser)
     router.delete('/deleteUser', userController.deleteUser)
 

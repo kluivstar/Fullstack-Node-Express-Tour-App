@@ -18,13 +18,19 @@ const filterReqObj = (obj, ...allowedFields) => {
     return newObj
 }
 
+// Fetch User
+exports.getMe = (req, res, next) => {
+    req.params.id = req.user.id
+    next() // Calls userController.getUser
+}
+
+// Create User
 exports.createUser = (req, res) => {
     res.status(500).json({
         status: 'error',
         message: "This route is not defind, use /signup instead"
     })
 }
-
 
 // Update User
 exports.updateMe = asyncErrorHandler(async (req, res, next) => {
@@ -47,6 +53,14 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
         data: {
             user: updatedUser
         }
+    })
+})
+
+exports.deleteMe = asyncErrorHandler(async (req, res, next) => {
+    await User.findByIdAndDelete(req.user.id), {active: false}
+    res.status(204).json({
+        status:' success',
+        data: null
     })
 })
 

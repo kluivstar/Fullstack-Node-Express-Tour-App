@@ -12,26 +12,7 @@ exports.aliaTopTours = (req,res, next) => {
     next()
 }
 
-exports.getAllTours = asyncErrorHandler(async (req, res, next) => {
-    const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate()
 
-    
-    // Execute Query
-    const tours = await features.query
-
-    res.status(200).json({
-        status: 'success',
-        results: tours.length,
-        data: {
-            tours
-            }
-        })
-    } 
-)
 exports.getAllTours = factory.getAll(Tour)
 exports.getTour = factory.getOne(Tour, {path: 'reviews'})
 
@@ -40,17 +21,6 @@ exports.createTour = factory.createOne(Tour)
 exports.updateTour = factory.deleteOne(Tour)
 
 exports.deleteTour = factory.deleteOne(Tour)
-// exports.deleteTour = asyncErrorHandler(async (req, res) => {
-//     await Tour.findByIdAndDelete(req.params.id)
-//     if(!tour) {
-//         return next(new AppError('No tour found with that ID'), 404)
-//     }
-
-//     res.status(204).json({
-//         status: 'success',
-//         data: null
-//     })
-// });
 
 exports.getTourStats = asyncErrorHandler(async (req, res) => {
         const stats = await Tour.aggregate([
