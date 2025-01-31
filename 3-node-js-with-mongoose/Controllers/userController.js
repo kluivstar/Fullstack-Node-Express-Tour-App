@@ -44,8 +44,8 @@ exports.getUser = asyncErrorHandler(async(req, res, next) => {
     next()
 })
 
-// Get Specific User
-exports.updateUser = asyncErrorHandler(async (req, res, next) => {
+// Update User
+exports.updateMe = asyncErrorHandler(async (req, res, next) => {
     if(req.body.password || req.body.passwordConfirm){
         return next(
             new AppError('You cant update password with this route, kindly use /updatePassword', 400)
@@ -67,7 +67,9 @@ exports.updateUser = asyncErrorHandler(async (req, res, next) => {
         }
     })
 })
+// Update User - Only for admin - Do not update password with this
+exports.updateUser = factory.updateOne(User)
 
-// Deletes User Profile
+// Delete User
 exports.deleteUser = factory.deleteOne(User)
 
