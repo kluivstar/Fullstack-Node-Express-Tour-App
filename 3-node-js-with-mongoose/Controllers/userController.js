@@ -67,6 +67,9 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
         }
     })
 })
+
+exports.getUser = factory.getOne(User)
+
 // Update User - Only for admin - Do not update password with this
 exports.updateUser = factory.updateOne(User)
 

@@ -4,6 +4,22 @@ const APIFeatures = require('../Utils/apiFeatures')
 const AppError = require("../Utils/appError")
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 
+exports.getOne = (Model, popOptions) => asyncErrorHandler(async (req, res, next) => {
+    let query = Model.findById(req.params.id)
+    if (popOptions) query = query.populate(popOptions)
+    const doc = await query;
+
+    if(!doc){
+        return next(AppError('No document found with that ID', 404))
+    }
+    
+    res.status(201).json({
+        status: "success",
+        data: {
+            data: doc
+        }
+    })
+})
 
 exports.createOne = Model => asyncErrorHandler(async (req, res, next) => {
     

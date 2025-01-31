@@ -33,23 +33,7 @@ exports.getAllTours = asyncErrorHandler(async (req, res, next) => {
     } 
 )
 
-exports.getTour = asyncErrorHandler(async (req, res, next)=>{
-    // query database for id to find the exact document the user is requesting
-    const tour =  await Tour.findById(req.params.id).populate('reviews')
-    
-    if (!tour){
-        //catches error, returns or create AppError instance to represent an operational error. 
-        // Instance is passed into error middleware in errController which sends the appropriate response to client
-        return next(new AppError('No tour found with that ID', 404))
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            tour
-        }
-    })
-})
+exports.getTour = factory.getOne(Tour, {path: 'reviews'})
 
 exports.createTour = factory.createOne(Tour)
 
