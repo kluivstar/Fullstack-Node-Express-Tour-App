@@ -6,7 +6,7 @@ const router = express.Router({ mergeParams: true})
 router
     .route('/')
     .get(reviewController.getAllReviews)
-    .post(authController.protect, authController.restrict('user'), reviewController.createReview)
+    .post(authController.protect, authController.restrict('user'), reviewController.setTourUserIds, reviewController.createReview)
     
 router
     .route('/:id')

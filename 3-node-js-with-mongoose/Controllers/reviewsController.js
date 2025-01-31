@@ -20,18 +20,13 @@ exports.getAllReviews = asyncErrorHandler(async (req, res, next) => {
     
 })
 
-exports.createReview = asyncErrorHandler(async(req, res, next) => {
+exports.setTourUserIds = (req, res, next) => {
     // Allow nested route
     if(!req.body.tour) req.body.tour = req.params.tourId
     if(!req.body.user) req.body.user = req.user.id
+    next()
 
-    const newReview = await Review.create(req.body)
-    res.status(201).json({
-        status: "Review added",
-        data: {
-            review: newReview
-        }
-    })
-})
+}
+exports.createReview = factory.createOne(Review)
 exports.updateReview = factory.updateOne(Review)
 exports.deleteReview = factory.deleteOne(Review)
