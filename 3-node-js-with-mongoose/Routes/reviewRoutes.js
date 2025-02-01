@@ -10,7 +10,7 @@ router
     
 router
     .route('/:id')
-    .delete(reviewController.deleteReview)
-    .patch(reviewController.updateReview)
+    .delete(authController.restrict('user', 'admin'), reviewController.deleteReview)
+    .patch(authController.restrict('user', 'admin'), reviewController.updateReview)
     
 module.exports = router
