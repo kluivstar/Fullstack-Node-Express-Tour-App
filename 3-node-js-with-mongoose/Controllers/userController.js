@@ -31,6 +31,11 @@ exports.createUser = (req, res) => {
         message: "This route is not defind, use /signup instead"
     })
 }
+// Get use without needing the user Id
+exports.getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+  };
 
 // Update User
 exports.updateMe = asyncErrorHandler(async (req, res, next) => {
@@ -57,12 +62,15 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
 })
 
 exports.deleteMe = asyncErrorHandler(async (req, res, next) => {
-    await User.findByIdAndDelete(req.user.id), {active: false}
+
+    await User.findByIdAndUpdate(req.user.id, { active: false });
+  
     res.status(204).json({
-        status:' success',
-        data: null
-    })
-})
+      status: 'success',
+      data: null
+    });
+  });
+  
 
 exports.getAllUsers = factory.getAll(User)
 exports.getUser = factory.getOne(User)

@@ -10,17 +10,16 @@ const router = express.Router()
     router.post('/login', authController.login);
     router.post('/forgotPassword', authController.forgotPassword);
     router.patch('/resetPassword/:token', authController.resetPassword);
-    router.patch('/updatePassword', authController.protect, authController.updatePassword)
+    
 
 // Protect all route after this middleware - SETS req.user object
 // Instead of adding protect controller inline in endpoint
     router.use(authController.protect)
 
-    // router.patch('/updatePassword', authController.updatePassword)
-    // router.get('/getUser', userController.getUser)
+    router.patch('/updatePassword', authController.updatePassword)
     router.get('/me', userController.getMe, userController.getUser)
-    router.patch('/updateUser', userController.updateUser)
-    router.delete('/deleteUser', userController.deleteUser)
+    router.patch('/updateMe', userController.updateMe)
+    router.delete('/deleteUser', userController.deleteMe)
 
 // User Route Definition
 router
@@ -33,7 +32,7 @@ router
 router
     .route('/:id')
     .get(userController.getUser)
-    .patch(userController.updateMe)
+    .patch(userController.updateUser)
     .delete(userController.deleteUser)
 
 

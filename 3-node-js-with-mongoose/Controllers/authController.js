@@ -205,6 +205,7 @@ exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
     
     // Get user from DB
     // 'req.user' from protect MW
+    // + ensure password is retrieved
     const user = await User.findById(req.user.id).select('+password')
     
     // Checks if current password is correct
