@@ -21,7 +21,7 @@ const filterReqObj = (obj, ...allowedFields) => {
 // Fetch User
 exports.getMe = (req, res, next) => {
     req.params.id = req.user.id
-    next() // Calls userController.getUser
+next() // Calls userController.getUser
 }
 
 // Create User

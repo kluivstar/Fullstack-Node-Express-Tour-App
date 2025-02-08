@@ -54,27 +54,27 @@ const userSchema = new mongoose.Schema({
 
 // INSTANCE METHODS
 
-// * Hashes password before save to DB - Only run this function if password was actually modified
-userSchema.pre('save', async function(next){
-    if(!this.isModified('password')) return next()
+// * Password Encryption - Hashes password before save to DB - Only run this function if password was actually modified
+// userSchema.pre('save', async function(next){
+//     if(!this.isModified('password')) return next()
 
-        // Encrypt/Hash password with a salt rounds value of 12 before saving it
-        this.password = await bcrypt.hash(this.password, 12)
+//         // Encrypt/Hash password with a salt rounds value of 12 before saving it
+//         this.password = await bcrypt.hash(this.password, 12)
         
-        // Delete confirm password field
-        this.passwordConfirm = undefined
-        next()
-})
+//         // Delete confirm password field
+//         this.passwordConfirm = undefined
+//         next()
+// })
 
-// * Updates the passwordChangedAt field whenever the password is modified or a new user is being created
-userSchema.pre('save', async function(next){
-    if(!this.isModified('password') || this.isNew) return next()
+// // * Updates the passwordChangedAt field whenever the password is modified or a new user is being created
+// userSchema.pre('save', async function(next){
+//     if(!this.isModified('password') || this.isNew) return next()
 
-        this.passwordChangedAt = Date.now() - 1000 // minus 1s to ensure jwt is created after password change
+//         this.passwordChangedAt = Date.now() - 1000 // minus 1s to ensure jwt is created after password change
 
-        // Once the passwordChangedAt field is updated, the next() function is called
-        next()
-})
+//         // Once the passwordChangedAt field is updated, the next() function is called
+//         next()
+// })
 
 // * Instance runs before query in getAllUsers RHF to get active users excluding deleted(inactive) users
 userSchema.pre(/^find/, async function(next){

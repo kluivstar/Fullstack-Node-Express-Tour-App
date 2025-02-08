@@ -22,6 +22,8 @@ const router = express.Router()
     router.delete('/deleteUser', userController.deleteMe)
 
 // User Route Definition
+router.use(authController.restrict('admin'))
+
 router
     // Routes defined as / under the /users path - {{URL}}/users
     .route('/') // root path of router - router did not define a route for /getAllUsers, so dont make a req to it, use /users instead, it handles GET req.

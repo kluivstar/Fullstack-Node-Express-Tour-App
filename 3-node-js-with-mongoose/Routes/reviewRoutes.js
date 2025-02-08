@@ -3,10 +3,12 @@ const authController = require('./../Controllers/authController')
 const reviewController = require('./../Controllers/reviewsController')
 const router = express.Router({ mergeParams: true})
 
+router.use(authController.protect)
+
 router
     .route('/')
     .get(reviewController.getAllReviews)
-    .post(authController.protect, authController.restrict('user'), reviewController.setTourUserIds, reviewController.createReview)
+    .post(authController.restrict('user'), reviewController.setTourUserIds, reviewController.createReview)
     
 router
     .route('/:id')

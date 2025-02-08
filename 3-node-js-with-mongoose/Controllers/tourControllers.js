@@ -12,8 +12,9 @@ exports.aliaTopTours = (req,res, next) => {
     next()
 }
 
-
+// Handler Fucnctions
 exports.getAllTours = factory.getAll(Tour)
+
 exports.getTour = factory.getOne(Tour, {path: 'reviews'})
 
 exports.createTour = factory.createOne(Tour)
