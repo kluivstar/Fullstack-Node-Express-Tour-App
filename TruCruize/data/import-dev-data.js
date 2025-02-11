@@ -70,6 +70,3 @@ if(process.argv[2] === '--import'){
     deleteData()
 }
 
-// To import mock data to DB first run node ./data/import-dev-data.json --delete
-
-// Then node ./data/import-dev-data.json -- import
