@@ -25,7 +25,7 @@ router
 router
     .route('/')
     .get(tourController.getAllTours)
-    .post(authController.restrict('admin', 'lead-guide'), tourController.createTour)
+    .post(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.createTour)
 
 router
     .route('/:id')
