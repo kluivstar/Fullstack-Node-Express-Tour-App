@@ -17,6 +17,7 @@ exports.getAll = Model => asyncErrorHandler(async (req, res, next) => {
     
     // Execute Query
     const doc = await features.query
+    // const doc = await features.query.explain() // explain method provide sexecutionStats in query result/response
 
     res.status(200).json({
         status: 'success',
