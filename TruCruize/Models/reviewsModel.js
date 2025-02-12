@@ -39,7 +39,16 @@ const reviewSchema = new mongoose.Schema(
     );
 
 
+// reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
+// reviewSchema.pre(/^find/, function(next) {
+//       this.populate({
+//         path: 'user',
+//         select: 'name photo'
+//       });
+//       next();
+// });
+    
 
 // 👉 Calculate average rating
 
@@ -56,20 +65,37 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
             }
         }
     ])
-    console.log(stats)
+    // console.log(stats)
 
+if (stats.length > 0) {
     await Tour.findByIdAndUpdate(tourId, {
-        ratingQuantity: stats[0].nRating,
-        ratingAverage: stats[0].avgRating
-    })
-    
-}
+        ratingsQuantity: stats[0].nRating,
+        ratingsAverage: stats[0].avgRating
+    });
+    } else {
+    await Tour.findByIdAndUpdate(tourId, {
+        ratingsQuantity: 0,
+        ratingsAverage: 4.5
+    });
+    }
+};
 
 // 👉 Recalculate ratings after adding a new review
 reviewSchema.post('save', function() {
     this.constructor.calcAverageRatings(this.tour)
 })
 
+// 👉 STEP 1: Store the current review before update/delete 
+reviewSchema.pre(/^findOneAnd/, async function(next) {
+    this.r = await this.findOne();
+    next();
+});
+  
+// 👉 STEP 2: Update the tour's average rating after update/delete
+reviewSchema.post(/^findOneAnd/, async function() {
+    // await this.findOne(); does NOT work here, query has already executed
+    await this.r.constructor.calcAverageRatings(this.r.tour);
+});
 
 const Review = mongoose.model('Review', reviewSchema)
 
