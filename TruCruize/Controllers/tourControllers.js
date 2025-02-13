@@ -115,6 +115,7 @@ exports.getToursWithin = asyncErrorHandler( async (req, res, next) => {
     })
 })
 
+
 exports.getDistances =  asyncErrorHandler( async (req, res, next) => {
     const {latlng, unit} = req.params;
     const [lat, lng] = latlng.split(',')

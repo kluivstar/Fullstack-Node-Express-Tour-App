@@ -27,9 +27,15 @@ router
     .get(tourController.getToursWithin)
 
 router
+<<<<<<< HEAD
     .route('/distances/:latlng/unit/:unit')
     .get(tourController.getDistances)
     
+=======
+    .route('/distance/center/:latlng/unit/:unit')
+    .get(tourController.getDistances)
+
+>>>>>>> 66bd8b2827c59af46703add7a637ca6e0f0f919e
 router
     .route('/')
     .get(tourController.getAllTours)
