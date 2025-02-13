@@ -131,6 +131,7 @@ const tourSchema = new mongoose.Schema({
 // tourSchema.index({price: 1})
 tourSchema.index({price: 1, ratingsAverage: -1})
 tourSchema.index({slug: 1})
+tourSchema.index({startLocation: '2dsphere'})
 
 // calculates number of weeks based on the "duration" field
 tourSchema.virtual('durutionWeeks').get(function(){
@@ -175,14 +176,14 @@ tourSchema.pre(/^find/, function(next){
 
 
 // AGGREGATION MIDDLEWARE: $match ensure only document with false secretTours are included in aggregation results
-tourSchema.pre('aggregate', function(next){
-    this.pipeline().unshift({
-        $match: {secretTour: {$ne: true}}
-    })
+// tourSchema.pre('aggregate', function(next){
+//     this.pipeline().unshift({
+//         $match: {secretTour: {$ne: true}}
+//     })
 
-    console.log(this.pipeline())
-    next()
-})
+//     console.log(this.pipeline())
+//     next()
+// })
 
 const Tour = mongoose.model('Tour', tourSchema)
 module.exports = Tour;
