@@ -1,5 +1,6 @@
 // Setting Up Express and Reading the JSON File
 const express = require('express')
+const path = require('path')
 const morgan = require('morgan')
 const app = express()
 const rateLimit = require('express-rate-limit')
@@ -14,12 +15,14 @@ const reviewRoute = require('./Routes/reviewRoutes')
 const AppError = require('./Utils/appError')
 const globalErrorHandler = require('./Controllers/errController')
 
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Body parser - reading data from body into req.body- Middleware that parse incoming JSON request
 app.use(express.json({limit: '10kb'}))
-
-// Serving static files
-app.use(express.static('./Public'))
 
 // Data Santization against NoSql query inject
 app.use(sanitize())
@@ -71,6 +74,9 @@ app.use('/tour', limiter)
 
 
 // using/mounting our imported route module/middleware - specifing route to middleware.
+app.get('/', (req, res) => {
+  res.status(200).render('base')
+})
 app.use('/auth', authRouter)
 app.use('/users', userRoute)
 app.use('/tours', tourRoute)
