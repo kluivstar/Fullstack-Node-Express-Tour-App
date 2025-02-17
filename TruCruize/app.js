@@ -19,7 +19,7 @@ app.set('view engine', 'pug')
 app.set('views', path.join(__dirname, 'views'))
 
 // Serving static files
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'Public')))
 
 // Body parser - reading data from body into req.body- Middleware that parse incoming JSON request
 app.use(express.json({limit: '10kb'}))
