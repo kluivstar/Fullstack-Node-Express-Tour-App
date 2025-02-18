@@ -82,6 +82,32 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     
 })
 
+exports.isLoggedIn = async(req, res, next) => {
+    if(req.cookies.jwt) {
+        try {
+            // verify token
+            const decoded = await promisify(jwt.verify)(
+                req.cookies.jwt,
+                process.env.SECRET_STR
+            )
+            // check if user exist
+            const currentUser = await User.findById(decoded.id)
+            if(!currentUser){
+                return next()
+            }
+            // check if user changed password after token was issued
+            if (currentUse.changedPasswordAfter(decoded.iat)){
+                return next()
+            }
+            res.local.user = currentUser
+            return next()
+        } catch (err){
+            return next()
+        }
+    }
+    next()
+}
+
 // Protect or a JWT authentication middleware
 exports.protect = asyncErrorHandler(async (req, res, next) => {
     // const testToken = req.headers.authorization

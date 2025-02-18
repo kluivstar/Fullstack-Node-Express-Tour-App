@@ -12,6 +12,7 @@ const authRouter = require('./Routes/authRouter')
 const userRoute = require('./Routes/userRoute')
 const tourRoute = require('./Routes/tourRoutes')
 const reviewRoute = require('./Routes/reviewRoutes')
+const viewRouter = require('./Routes/viewRoutes')
 const AppError = require('./Utils/appError')
 const globalErrorHandler = require('./Controllers/errController')
 
@@ -71,13 +72,19 @@ app.use('/tour', limiter)
   //  req.requestedAt = new Date().toISOString()
     //next()
 //})
-
-
 // using/mounting our imported route module/middleware - specifing route to middleware.
-app.get('/', (req, res) => {
-  res.status(200).render('base')
+app.get('/overview', (req, res) => {
+  res.status(200).render('overview', {
+    title: 'All Tours'
+  })
 })
-app.use('/auth', authRouter)
+app.get('/tour', (req, res) => {
+  res.status(200).render('tour', {
+    title: 'All Tours'
+  })
+})
+// app.use('/auth', authRouter)
+app.use('/', viewRouter)
 app.use('/users', userRoute)
 app.use('/tours', tourRoute)
 app.use('/reviews', reviewRoute)

@@ -2,7 +2,7 @@ const express = require('express')
 const userController = require('./../Controllers/userController')
 const authController = require('./../Controllers/authController')
 
-// parsing incoming request
+// creates a mini express app/obj for handling route - organize routes(GET, POST, PUT, DELETE)
 const router = express.Router()
 
 // Auth Route
