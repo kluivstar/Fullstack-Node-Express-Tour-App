@@ -18,7 +18,7 @@ const reviewSchema = new mongoose.Schema(
             type: Date,
             default: Date.now
         },
-        photo: String,
+        // photo: String,
         tour: {
             type: mongoose.Schema.ObjectId,
             ref: 'Tour',
@@ -41,13 +41,13 @@ const reviewSchema = new mongoose.Schema(
 // 👉 Prevent duplicate reviews
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
-// reviewSchema.pre(/^find/, function(next) {
-//       this.populate({
-//         path: 'user',
-//         select: 'name photo'
-//       });
-//       next();
-// });
+reviewSchema.pre(/^find/, function(next) {
+      this.populate({
+        path: 'user',
+        select: 'name photo'
+      });
+      next();
+});
     
 
 // 👉 Calculate average rating
