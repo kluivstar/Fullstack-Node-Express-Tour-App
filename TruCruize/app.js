@@ -8,6 +8,7 @@ const helmet = require('helmet')
 const sanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp')
+const cookieParser = require('cookie-parser')
 const authRouter = require('./Routes/authRouter')
 const userRoute = require('./Routes/userRoute')
 const tourRoute = require('./Routes/tourRoutes')
@@ -24,6 +25,9 @@ app.use(express.static(path.join(__dirname, 'Public')))
 
 // Body parser - reading data from body into req.body- Middleware that parse incoming JSON request
 app.use(express.json({limit: '10kb'}))
+
+// Parse - reads data from cookie in req
+app.use(cookieParser())
 
 // Data Santization against NoSql query inject
 app.use(sanitize())

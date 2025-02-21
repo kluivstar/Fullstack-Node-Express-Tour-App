@@ -118,7 +118,11 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
         req.headers.authorization.startsWith('Bearer')
     ){
         token = req.headers.authorization.split(' ')[1]
-    }
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt
+    } // if no token check jwt
+    
+    
     // If there not token in request = not logged in
     if(!token){
         next(new AppError("You're not logged in! Kindly log in to access.", 400))
