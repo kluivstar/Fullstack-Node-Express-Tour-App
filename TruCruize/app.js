@@ -67,22 +67,9 @@ app.use('/user', limiter)
 app.use('/auth', limiter)
 app.use('/tour', limiter)
 
-// This middleware adds a requestedAt property to the request object, containing the timestamp of when the request was made.
-//app.use((req, res, next) =>{
-  //  req.requestedAt = new Date().toISOString()
-    //next()
-//})
+
 // using/mounting our imported route module/middleware - specifing route to middleware.
-app.get('/overview', (req, res) => {
-  res.status(200).render('overview', {
-    title: 'All Tours'
-  })
-})
-app.get('/tour', (req, res) => {
-  res.status(200).render('tour', {
-    title: 'All Tours'
-  })
-})
+
 // app.use('/auth', authRouter)
 app.use('/', viewRouter)
 app.use('/users', userRoute)
@@ -99,8 +86,6 @@ app.all('*', (req, res, next) => {
 // using our error handler middleware
 // globalErrorHandler receive "err" from wild card route
 app.use(globalErrorHandler)
-
-
 
 // import server
 module.exports = app

@@ -30,3 +30,20 @@ exports.getTour = asyncErrorHandler( async (req, res, next) => {
         tour
     })
 })
+
+exports.getLoginForm = asyncErrorHandler( async(req, res, next) => {
+    const tours = await Tour.find()
+
+    res.status(200).render('login', {
+        title: 'Log into your account',
+    })
+})
+
+
+exports.getAccount = asyncErrorHandler( async(req, res, next) => {
+    const tours = await Tour.find()
+
+    res.status(200).render('account', {
+        title: 'Account',
+    })
+})
