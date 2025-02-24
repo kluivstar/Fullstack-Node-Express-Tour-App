@@ -6,8 +6,13 @@ const viewsController = require('./../Controllers/viewsController')
 
 // creates a mini express app/obj for handling route - organize routes(GET, POST, PUT, DELETE)
 const router = express.Router()
+
+router.use(authController.isLoggedIn)
+
 router
     .get('/', viewsController.getOverview)
+    
+router
     .get('/login', viewsController.getLoginForm)
 
 router

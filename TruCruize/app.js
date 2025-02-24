@@ -56,8 +56,15 @@ if(process.env.NODE_ENV === 'development'){
 // The logger middleware function defined earlier is then added, logging "Custom middleware called" on every request.
 //app.use(logger)
 
-// Helmet - Set security HTTP header
-app.use(helmet()) 
+// Helmet - Set security HTTP header - enhanced security
+// Added Content Security Policy (CSP) to allow scripts only from 'self' and jsDelivr.
+app.use(helmet({
+  contentSecurityPolicy: {
+      directives: {
+          "script-src": ["'self'", "https://cdn.jsdelivr.net"],
+      },
+  },
+})) 
 
 // Rate limit
 let limiter = rateLimit({

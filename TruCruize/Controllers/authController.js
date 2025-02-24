@@ -82,6 +82,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     
 })
 
+// Only for render pages, no error
 exports.isLoggedIn = async(req, res, next) => {
     if(req.cookies.jwt) {
         try {
@@ -99,7 +100,7 @@ exports.isLoggedIn = async(req, res, next) => {
             if (currentUse.changedPasswordAfter(decoded.iat)){
                 return next()
             }
-            res.local.user = currentUser
+            res.locals.user = currentUser
             return next()
         } catch (err){
             return next()
@@ -148,6 +149,7 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     // Allow/Grant user access to protected route by calling getAllUser or any route
     // req used to put stuff on request object that will be available at a later point
     req.user = currentUser;
+   
     next();
     
 });
