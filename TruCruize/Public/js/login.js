@@ -1,6 +1,8 @@
 /* eslint-disable */
+import axios from 'axios';
+import { showAlert } from './alerts';
 
-const login = async (email, password) => {
+export const login = async (email, password) => {
     try {
         const res = await axios({
             method: 'POST',
@@ -11,27 +13,15 @@ const login = async (email, password) => {
             }
         })
 
-        // if (res.data.status === 'success'){
-        //     showAlert('success', 'Logged in successfully')
-        //     window.setTimeout(() => {
-        //         location.assign('/')
-        //     }, 1500);
-        // }
+        if (res.data.status === 'success'){
+            showAlert('success', 'Logged in successfully')
+            window.setTimeout(() => {
+                location.assign('/')
+            }, 1500);
+        }
         console.log(res)
     } catch (err) {
-        console.error("Error", err.response.data);
+        showAlert('error', err.response.data.message);
     }
 }
-// DOMContentLoaded - Ensures the script runs after the page has fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('.form').addEventListener('submit', e => {
-        e.preventDefault();  // Prevents default form submission
-        
-        // Gets the values from the email and password input fields.
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        login(email, password); // Call login function
-    });
-});
 

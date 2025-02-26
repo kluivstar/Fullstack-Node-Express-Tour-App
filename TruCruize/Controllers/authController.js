@@ -97,9 +97,11 @@ exports.isLoggedIn = async(req, res, next) => {
                 return next()
             }
             // check if user changed password after token was issued
-            if (currentUse.changedPasswordAfter(decoded.iat)){
+            if (currentUser.changedPasswordAfter(decoded.iat)){
                 return next()
             }
+
+            // If there is logged in user - make user accessible to template 
             res.locals.user = currentUser
             return next()
         } catch (err){
