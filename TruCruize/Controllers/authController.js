@@ -111,6 +111,17 @@ exports.isLoggedIn = async(req, res, next) => {
     next()
 }
 
+//
+exports.logout = (req, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now(0)), // The cookie disappears after 10 seconds.
+        httpOnly: true // Prevents JavaScript from accessing the cookie.
+    })
+    res.status(200).json({
+        status: 'success'
+    })
+}
+
 // Protect or a JWT authentication middleware
 exports.protect = asyncErrorHandler(async (req, res, next) => {
     // const testToken = req.headers.authorization
