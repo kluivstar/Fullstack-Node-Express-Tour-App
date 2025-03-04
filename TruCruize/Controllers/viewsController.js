@@ -22,7 +22,7 @@ exports.getTour = asyncErrorHandler( async (req, res, next) => {
     })
 
     if(!tour){
-        return next (new AppError ('There is no tour with that name.', 404))
+        return next (new AppError ('There is no tour with that name...', 404))
     }
 
     res.status(200).render('tour', {
@@ -40,10 +40,9 @@ exports.getLoginForm = asyncErrorHandler( async(req, res, next) => {
 })
 
 
-exports.getAccount = asyncErrorHandler( async(req, res, next) => {
-    const tours = await Tour.find()
-
+exports.getAccount = (req, res) => {
     res.status(200).render('account', {
-        title: 'Account',
+        title: 'Your account'
     })
-})
+    console.log(res)
+}

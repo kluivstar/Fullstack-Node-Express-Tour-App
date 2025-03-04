@@ -1,14 +1,22 @@
-
 const AppError = require("../Utils/appError")
 
 // Send Dev errors to Developer/Engineer
 // Displays DEV Error - User make request - We get error details
-const sendDevError = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message,
-        stack: err.stack,
-        error: err // DISPLAYS FULL ERROR IN RESPONSE
+const sendDevError = (err, req, res) => {
+    // API
+    if (req.originalUrl.startsWith('/api')) {
+        res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+            stack: err.stack,
+            error: err // DISPLAYS FULL ERROR IN RESPONSE
+        })
+    }
+    
+    // Render Website
+    return res.status(err.statusCode).render('error', {
+        title: 'Something went wrong',
+        msg: err.message
     })
 }
 
@@ -49,19 +57,38 @@ const handleJWTError =() =>{
 }
 
 // Production Error Handler - Send Operational Errors to clients
-const sendProdError = (err, res) => {
-    if(err.isOperational){
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message,
-            
-        })
-    } else {
-        res.status(500).json({
-            status: 'error',
-            message: 'Something went wrong.'
+const sendProdError = (err, req, res) => {
+    // API
+    if (req.originalUrl.startsWith('/api')){
+        if (err.isOperational){
+            return res.status(err.statusCode).json({
+                status: err.status,
+                message: err.message
+            })
+        }
+    // Send Generic Message
+    console.log('Error', err)
+    return res.status(500).json({
+        status: 'error',
+        message: 'Something went very wrong'
+    })
+}
+
+    // Render Website
+    if (err.isOperational) {
+        console.log(err)
+        return res.status(err.statusCode).render('error', {
+            title: 'Something went wrong',
+            msg: err.message
         })
     }
+
+    console.log('Error', err)
+    // Send Generic Message
+    return res.status(err.statusCode).render('error', {
+        title: 'Something went wrong',
+        msg: 'Please try again later'
+    })
 }
 
 // Global Error Handling Middleware
@@ -70,12 +97,12 @@ module.exports = (err, req, res, next) => {
     err.status = err.status ||'error'
      // Handles Dev Errors
     if(process.env.NODE_ENV === 'development'){
-        sendDevError(err, res)
+        sendDevError(err, req, res)
         // Handles/Calls Production Error
     } else if(process.env.NODE_ENV === 'production'){
         // Creates copy of error object then passed to error handlers like castErrorHandler
         let error = Object.assign(err);
-
+        error.message = err.message;
 
         if(error.name === 'CastError') error = castErrorHandler(error);
         if(error.code == 11000) error = duplicateKeyErrorHandler(error);

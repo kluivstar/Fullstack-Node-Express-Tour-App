@@ -159,10 +159,11 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
         );
       }
 
-    // Allow/Grant user access to protected route by calling getAllUser or any route
-    // req used to put stuff on request object that will be available at a later point
+    // Allow/Grant user access to protected route 
+
+    // Puts current user in res and res.locals - makes current user avaliable in templates
     req.user = currentUser;
-   
+    req.locals.user = currentUser; 
     next();
     
 });
