@@ -19,7 +19,7 @@ router
     .get('/tour/:slug', authController.isLoggedIn, viewsController.getTour)
 
 router
-    .get('/me', authController.isLoggedIn, viewsController.getAccount)
+    .get('/me', authController.protect, viewsController.getAccount)
 
 
 module.exports = router

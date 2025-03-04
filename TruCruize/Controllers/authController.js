@@ -124,49 +124,50 @@ exports.logout = (req, res) => {
 
 // Protect or a JWT authentication middleware
 exports.protect = asyncErrorHandler(async (req, res, next) => {
-    // const testToken = req.headers.authorization
-
-    // Reads token and check if it exist
-    let token
-    if(req.headers.authorization && 
-        req.headers.authorization.startsWith('Bearer')
-    ){
-        token = req.headers.authorization.split(' ')[1]
+    // 1) Getting token and check of it's there
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies.jwt) {
-        token = req.cookies.jwt
-    } // if no token check jwt
-    
-    
-    // If there not token in request = not logged in
-    if(!token){
-        next(new AppError("You're not logged in! Kindly log in to access.", 400))
+      token = req.cookies.jwt;
     }
-
-    // Validate token
-    const decodedToken = await promisify(jwt.verify)(token, process.env.SECRET_STR)
-
-    // If user exists
-    const currentUser = await User.findById(decodedToken.id)
-    if(!currentUser){
-        const error = new AppError('The user with given token does not exist.', 401);
-        next(error)
-    };
-
-    // Check if user changed password after token was issued by calling User.changedPasswordAfter instance
-    if (currentUser.changedPasswordAfter(decodedToken.iat)) {
-        return next(
-          new AppError('User recently changed password! Please log in again.', 401)
-        );
-      }
-
-    // Allow/Grant user access to protected route 
-
-    // Puts current user in res and res.locals - makes current user avaliable in templates
+  
+    if (!token) {
+      return next(
+        new AppError('You are not logged in! Please log in to get access.', 401)
+      );
+    }
+  
+    // 2) Verify token
+    const decoded = await promisify(jwt.verify)(token, process.env.SECRET_STR);
+  
+    // 3) Check if user still exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return next(
+        new AppError(
+          'The user belonging to this token does no longer exist.',
+          401
+        )
+      );
+    }
+  
+    // 4) Check if user changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next(
+        new AppError('User recently changed password! Please log in again.', 401)
+      );
+    }
+  
+    //  Allow/Grant user access to protected route 
     req.user = currentUser;
-    req.locals.user = currentUser; 
+    res.locals.user = currentUser; // Puts current user in res and res.locals - makes current user avaliable in templates
     next();
-    
-});
+  });
+  
 
 // Restrict Middleware - If the user is authenticated and has the admin role, the route handler runs.
 // The protect middleware ensures that the user is authenticated and populates "req.user" stored in protect MW.
