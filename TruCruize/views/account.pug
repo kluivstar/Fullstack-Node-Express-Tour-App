@@ -30,7 +30,10 @@ block content
         .user-view__form-container
           h2.heading-secondary.ma-bt-md Your account settings
           
-          //- WITH API
+          //- Without API
+          //- form.form.form-user-data(action='/submit-user-data' method='POST' enctype='multipart/form-data')
+          
+          //- Form submit with API
           form.form.form-user-data
             .form__group
               label.form__label(for='name') Name

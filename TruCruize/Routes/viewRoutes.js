@@ -21,5 +21,8 @@ router
 router
     .get('/me', authController.protect, viewsController.getAccount)
 
+// Updating user Without API
+// router
+//     .get('/submit-user-data', authController.protect, viewsController.updateUserData)
 
 module.exports = router

@@ -26,6 +26,10 @@ app.use(express.static(path.join(__dirname, 'Public')))
 // Body parser - reading data from body into req.body- Middleware that parse incoming JSON request
 app.use(express.json({limit: '10kb'}))
 
+// parse incoming request bodies with URL-encoded payloads (e.g., form submissions)
+// Allows parsing of nested objects (e.g., req.body can contain rich objects and arrays).
+app.use(express.urlencoded({extended: true, limit: '10kb'}))
+
 // Parse - reads data from cookie in req
 app.use(cookieParser())
 
