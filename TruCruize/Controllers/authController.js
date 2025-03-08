@@ -57,14 +57,12 @@ exports.signup = asyncErrorHandler(async (req, res, next) =>{
 
 // Login Middleware
 exports.login = asyncErrorHandler(async (req, res, next) => {
-    const email = req.body.email
-    const password = req.body.password
+    const { email, password } = req.body;
 
     // Check if email/password exist
-    if(!email || !password){
-        const error = new AppError("Kindly enter an email or a password", 400)
-        return next(error)
-    }
+    if (!email || !password) {
+        return next(new AppError('Please provide email and password!', 400));
+      }
 
     // Check if user exist and password is correct
     // '+' adds/selects the previously hidden password in schema to the query/ouput
@@ -74,8 +72,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     // 'correctPassword' - schema/instance method that checks passwords
     // Authenticate users during login (correctPassword).
     if (!user || !(await user.correctPassword(password, user.password))){
-        const error = new AppError('Incorrect credentials', 400)
-        return next(error)
+        return next(new AppError('Incorrect email or password', 401));
     }
     // If user with email and password exist, login user
     createSendToken(user, 200, res)
@@ -265,7 +262,7 @@ exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
     user.passwordConfirm = req.body.passwordConfirm
     await user.save()
 
-    // Loin user, send JWT
+    // Login user, send JWT
     createSendToken(user, 200, res)
 })
 
