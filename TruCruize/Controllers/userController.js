@@ -1,5 +1,6 @@
 const User = require('./../Models/userModel')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
+const multer = require('multer')
 const jwt = require('jsonwebtoken')
 const AppError = require('../Utils/appError')
 const util = require('util')
@@ -7,6 +8,39 @@ const sendEmail = require('./../Utils/email')
 const crypto = require('crypto')
 const authController = require('./authController')
 const factory = require('./handlerFactory')
+
+// 1. Setting Up Storage Configuration
+// This defines how uploaded files should be stored.
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/users');
+  },
+  // Defines how the uploaded file should be named: extracting the file extension from file.mimetype in req body
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  }
+});
+
+// 2. File Type Filtering
+//This function ensures that only image files are accepted.
+const multerFilter = (req, file, cb) => {
+    if(file.mimetype.startsWith('image')){
+        // cb stands for callback. It is a function provided by Multer to control whether a file should be accepted or rejected.
+        cb(null, true) // No error , accept file
+    } else {
+        cb(new AppError('Not an image! Please upload only images.', 400), false)
+    }
+}
+
+// Multer - Upload config
+const upload = multer({
+    storage: multerStorage, // Defines where files are saved and how they are named.
+    fileFilter: multerFilter // Ensures only image files are uploaded.
+})
+
+// 4. Handling Single File Upload - one file can be uploaded at a time
+exports.uploadUserPhoto = upload.single('photo')
 
 // Filter through only allow fields during User update
 const filterReqObj = (obj, ...allowedFields) => {
@@ -39,6 +73,9 @@ exports.getMe = (req, res, next) => {
 
 // Update User
 exports.updateMe = asyncErrorHandler(async (req, res, next) => {
+    console.log(req.body)
+    console.log(req.file)
+
     if(req.body.password || req.body.passwordConfirm){
         return next(
             new AppError('You cant update password with this route, kindly use /updatePassword', 400)
@@ -47,6 +84,7 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
 
     // Allow only name and email to be updated - Filters out unwantd fields name that are not allowed to be updated
     const filteredBody = filterReqObj(req.body, 'name', 'email')
+
     // Update user
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
         new: true,

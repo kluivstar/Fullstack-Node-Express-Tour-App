@@ -2,6 +2,7 @@ const express = require('express')
 const userController = require('./../Controllers/userController')
 const authController = require('./../Controllers/authController')
 
+
 // creates a mini express app/obj for handling route - organize routes(GET, POST, PUT, DELETE)
 const router = express.Router()
 
@@ -19,7 +20,7 @@ const router = express.Router()
 
     router.patch('/updatePassword', authController.updatePassword)
     router.get('/me', userController.getMe, userController.getUser)
-    router.patch('/updateMe', userController.updateMe)
+    router.patch('/updateMe', userController.uploadUserPhoto, userController.updateMe)
     router.delete('/deleteUser', userController.deleteMe)
 
 // User Route Definition
