@@ -1,6 +1,7 @@
 const User = require('./../Models/userModel')
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 const multer = require('multer')
+const sharp = require('sharp');
 const jwt = require('jsonwebtoken')
 const AppError = require('../Utils/appError')
 const util = require('util')
@@ -11,16 +12,19 @@ const factory = require('./handlerFactory')
 
 // 1. Setting Up Storage Configuration
 // This defines how uploaded files should be stored.
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/img/users');
-  },
-  // Defines how the uploaded file should be named: extracting the file extension from file.mimetype in req body
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-  }
-});
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/img/users');
+//   },
+//   // Defines how the uploaded file should be named: extracting the file extension from file.mimetype in req body
+//   filename: (req, file, cb) => {
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+//   }
+// });
+
+// Use this instead of above since we install Sharp for image processing
+const multerStorage = multer.memoryStorage();
 
 // 2. File Type Filtering
 //This function ensures that only image files are accepted.
@@ -41,6 +45,22 @@ const upload = multer({
 
 // 4. Handling Single File Upload - one file can be uploaded at a time
 exports.uploadUserPhoto = upload.single('photo')
+
+// Resize user photo - runs after photo is uploaded
+exports.resizeUserPhoto = asyncErrorHandler(async (req, res, next) => {
+    if(!req.file) return next()
+
+    req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`
+
+    await sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`)
+
+    next()
+}
+)
 
 // Filter through only allow fields during User update
 const filterReqObj = (obj, ...allowedFields) => {

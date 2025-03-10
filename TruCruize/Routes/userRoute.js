@@ -19,9 +19,15 @@ const router = express.Router()
     router.use(authController.protect)
 
     router.patch('/updatePassword', authController.updatePassword)
+
     router.get('/me', userController.getMe, userController.getUser)
-    router.patch('/updateMe', userController.uploadUserPhoto, userController.updateMe)
-    router.delete('/deleteUser', userController.deleteMe)
+
+    router.patch('/updateMe', 
+        userController.uploadUserPhoto, 
+        userController.resizeUserPhoto, userController.updateMe)
+        
+    router.delete('/deleteUser', 
+        userController.deleteMe)
 
 // User Route Definition
 router.use(authController.restrict('admin'))
