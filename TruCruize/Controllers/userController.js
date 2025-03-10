@@ -85,6 +85,9 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
     // Allow only name and email to be updated - Filters out unwantd fields name that are not allowed to be updated
     const filteredBody = filterReqObj(req.body, 'name', 'email')
 
+    // if a file is uploaded store its file name in filteredBody.photo
+    if(req.file) filteredBody.photo = req.file.filename
+
     // Update user
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
         new: true,
