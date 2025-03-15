@@ -38,7 +38,7 @@ exports.uploadTourImages = upload.fields([
 exports.resizeTourImages = asyncErrorHandler(async (req, res, next) => {
     if (!req.files.imageCover || !req.files.images) return next();
 
-    // 1) Cover image
+    // 1) Generates a unique filename for the cover image
     req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
     await sharp(req.files.imageCover[0].buffer)
         .resize(2000, 1333)
@@ -46,7 +46,7 @@ exports.resizeTourImages = asyncErrorHandler(async (req, res, next) => {
         .jpeg({ quality: 90 })
         .toFile(`public/img/tours/${req.body.imageCover}`);
 
-        // 2) Images
+        // 2) Creates an empty array to store filenames of additional images.
     req.body.images = [];
 
     await Promise.all(
@@ -59,6 +59,7 @@ exports.resizeTourImages = asyncErrorHandler(async (req, res, next) => {
         .jpeg({ quality: 90 })
         .toFile(`public/img/tours/${filename}`);
 
+        // Adds the processed image filename to req.body.images
         req.body.images.push(filename);
     })
     );
