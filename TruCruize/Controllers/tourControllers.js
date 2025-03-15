@@ -4,6 +4,67 @@ const APIFeatures = require('../Utils/apiFeatures')
 const AppError = require("../Utils/appError")
 const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 const factory = require('./handlerFactory')
+const multer = require('multer')
+const sharp = require('sharp');
+
+// Setting Up Storage Configuration
+const multerStorage = multer.memoryStorage();
+
+// File Type Filtering
+//This function ensures that only image files are accepted.
+const multerFilter = (req, file, cb) => {
+    if(file.mimetype.startsWith('image')){
+        // cb stands for callback. It is a function provided by Multer to control whether a file should be accepted or rejected.
+        cb(null, true) // No error , accept file
+    } else {
+        cb(new AppError('Not an image! Please upload only images.', 400), false)
+    }
+}
+
+// Multer - Upload config
+const upload = multer({
+    storage: multerStorage, // Defines where files are saved and how they are named.
+    fileFilter: multerFilter // Ensures only image files are uploaded.
+})
+
+// Using Multer to handle file uploads with multiple fields.
+// upload.fields allows handling multiple file input fields in a single request.
+exports.uploadTourImages = upload.fields([
+    {name: 'imageCover', maxCount: 1}, // Holds an array with 1 file
+    {name: 'images', maxCount: 3}  
+]) // If a request contains an imageCover file and up to 4 images, Multer processes them and attaches them to req.files as an object.
+
+// Resize tour photo - runs after tour is uploaded
+exports.resizeTourImages = asyncErrorHandler(async (req, res, next) => {
+    if (!req.files.imageCover || !req.files.images) return next();
+
+    // 1) Cover image
+    req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+    await sharp(req.files.imageCover[0].buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${req.body.imageCover}`);
+
+        // 2) Images
+    req.body.images = [];
+
+    await Promise.all(
+    req.files.images.map(async (file, i) => {
+        const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+        await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${filename}`);
+
+        req.body.images.push(filename);
+    })
+    );
+
+    next();
+});
 
 exports.aliaTopTours = (req,res, next) => {
     req.query.limit = '5'
@@ -19,7 +80,7 @@ exports.getTour = factory.getOne(Tour, {path: 'reviews'})
 
 exports.createTour = factory.createOne(Tour)
 
-exports.updateTour = factory.deleteOne(Tour)
+exports.updateTour = factory.updateOne(Tour)
 
 exports.deleteTour = factory.deleteOne(Tour)
 

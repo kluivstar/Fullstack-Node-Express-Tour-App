@@ -18,13 +18,18 @@ const router = express.Router()
 // Instead of adding protect controller inline in endpoint
     router.use(authController.protect)
 
-    router.patch('/updatePassword', authController.updatePassword)
+    router.patch('/updatePassword', 
+        authController.updatePassword)
 
-    router.get('/me', userController.getMe, userController.getUser)
+    router.get('/me', 
+        userController.getMe, 
+        userController.getUser)
 
+    // Update User Data - handling file uploads within the PATCH /updateMe route instead of using a standalone /upload route
     router.patch('/updateMe', 
         userController.uploadUserPhoto, 
-        userController.resizeUserPhoto, userController.updateMe)
+        userController.resizeUserPhoto, 
+        userController.updateMe)
         
     router.delete('/deleteUser', 
         userController.deleteMe)

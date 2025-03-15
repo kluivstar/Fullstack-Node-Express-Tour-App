@@ -37,7 +37,7 @@ const multerFilter = (req, file, cb) => {
     }
 }
 
-// Multer - Upload config
+// Multer - Initialize multer middleware
 const upload = multer({
     storage: multerStorage, // Defines where files are saved and how they are named.
     fileFilter: multerFilter // Ensures only image files are uploaded.
@@ -48,10 +48,11 @@ exports.uploadUserPhoto = upload.single('photo')
 
 // Resize user photo - runs after photo is uploaded
 exports.resizeUserPhoto = asyncErrorHandler(async (req, res, next) => {
+    // Checks if Images Exist
     if(!req.file) return next()
 
     req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`
-
+// Processes the Cover Image, Saves it to public/img/users
     await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')

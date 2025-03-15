@@ -12,11 +12,13 @@ router.use('/:tourId/reviews', reviewRouter)
 // Tour routes
 router
     .route('/monthly-plan/:year')
-    .get(authController.protect, authController.restrict('admin', 'lead-guide', 'guide'), tourController.getMonthlyPlan)
+    .get(authController.protect, 
+        authController.restrict('admin', 'lead-guide', 'guide'), tourController.getMonthlyPlan)
 
 router
     .route('/top-5-cheap')
-    .get(tourController.aliaTopTours, tourController.getAllTours)
+    .get(tourController.aliaTopTours, 
+        tourController.getAllTours)
     
 router
     .route('/tour-stats')
@@ -32,14 +34,26 @@ router
     
 router
     .route('/')
-    .get(tourController.getAllTours)
-    .post(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.createTour)
+    .get(
+        tourController.getAllTours)
+    .post(
+        authController.protect, 
+        authController.restrict('admin', 'lead-guide'), 
+        tourController.createTour)
 
 router
     .route('/:id')
     .get(tourController.getTour)
-    .patch(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.updateTour)
-    .delete(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.deleteTour)
+    .patch(
+        authController.protect, 
+        authController.restrict('admin', 'lead-guide'),
+        tourController.uploadTourImages,
+        tourController.resizeTourImages, 
+        tourController.updateTour)
+    .delete(
+        authController.protect, 
+        authController.restrict('admin', 'lead-guide'), 
+        tourController.deleteTour)
 
 
 
