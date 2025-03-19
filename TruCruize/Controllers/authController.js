@@ -3,7 +3,7 @@ const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 const jwt = require('jsonwebtoken')
 const AppError = require('../Utils/appError')
 const {promisify} = require('util')
-const sendEmail = require('./../Utils/email')
+const Email = require('./../Utils/email')
 const crypto = require('crypto')
 
 // Reuseable sign Token 
@@ -51,6 +51,9 @@ exports.signup = asyncErrorHandler(async (req, res, next) =>{
         passwordConfirm: req.body.passwordConfirm,
         role: role || 'user' // Defaults to user is role is not provided
     })
+    const url = `${req.protocol}://${req.get('host')}/me`;
+    // console.log(url);
+    await new Email(newUser, url).sendWelcome();
     
     createSendToken(newUser, 201, res)
 })
@@ -193,17 +196,12 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     // Deactivate validators in schema
     await user.save({validateBeforeSave: false});
 
-    // Send the token back to the user email...
-    const resetUrl = `${req.protocol}://${req.get('host')}/users/resetPassword/${resetToken}`;
-    const message = `We received a password reset request. Kindly use the link below to reset your password\n\n${resetUrl}\n\nThis reset password link will be valid only for 10 minutes`;
-
+     // Sends the mail with reset url to user
     try{
-        // sendEmail utility function sends the mail with reset url in message
-        await sendEmail({
-            email: user.email,
-            subject: 'Password changed request received',
-            message: message
-        });
+       
+        const resetUrl = `${req.protocol}://${req.get('host')}/users/resetPassword/${resetToken}`;
+
+        await new Email(user, resetUrl).sendPasswordReset();
             res.status(200).json({
                 status: 'success',
                 message: 'Password reset link sent to the user email'
@@ -257,7 +255,7 @@ exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
         return next(new AppError('Your current password is wrong', 401))
     }
 
-    // If password is correct
+    // If password is correct update password
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm
     await user.save()

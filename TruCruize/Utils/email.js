@@ -13,10 +13,12 @@ module.exports = class Email {
     newTransport() {
         if (process.env.NODE_ENV === 'production'){
             return nodemailer.createTransport({
-                service: 'SendGrid',
+                host: 'smtp.resend.com', // Correct SMTP host for Resend
+                port: 587, // Resend uses port 587 for TLS
+                secure: false, // Set to true if using port 465
                 auth: {
-                    user: process.env.SENDGRID_USERNAME,
-                    pass: process.env.SENDGRID_PASSWORD
+                    user: 'resend', // Resend requires "resend" as the username
+                    pass: process.env.RESEND_API_KEY // Use API key as password
                 }
             })
         }
@@ -46,7 +48,8 @@ module.exports = class Email {
             to: this.to,
             subject,
             html,
-            text: htmlToText.fromString(html)
+            text: htmlToText.convert(html)
+
         }
         // 3. Create a transport and send email
         await this.newTransport().sendMail(mailOptions)
