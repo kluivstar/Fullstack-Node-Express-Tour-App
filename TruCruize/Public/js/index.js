@@ -3,7 +3,8 @@
 import '@babel/polyfill'
 import { login, logout } from "./login";
 import { displayMap } from './mapbox'; // A function (from mapbox.js) that displays a map with locations.
-import {updateSettings} from './updateSettings';
+import { updateSettings } from './updateSettings';
+import { bookTour } from './paystack'; // Ensure paystack.js is imported
 
 // DOM Elements
 const mapBox = document.getElementById('map');
@@ -11,57 +12,94 @@ const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
+const bookBtn = document.getElementById('book-tour');
 
-// // const bookBtn = document.getElementById('book-tour');
+console.log("DOM fully loaded!");
 
-// Delegation
+// ✅ Debugging: Check if book button exists
+console.log("Book button element:", bookBtn);
+
+// Mapbox Initialization
 if (mapBox) {
-  const locations = JSON.parse(mapBox.dataset.locations);
-  displayMap(locations);
+    const locations = JSON.parse(mapBox.dataset.locations);
+    displayMap(locations);
 }
 
-// // DOMContentLoaded - Ensures the script runs after the page has fully loaded
-if (loginForm)
-    loginForm.addEventListener('submit', e => { // add sumbit listener to .form--login now loginForm
-    e.preventDefault();
+// Login Form
+if (loginForm) {
+    loginForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        login(email, password);
+    });
+}
 
-    // Gets the values from the email and password input fields.
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+// Logout
+if (logOutBtn) logOutBtn.addEventListener('click', logout);
 
-    // Pass data to login.js
-    login(email, password);
-});
+// User Data Update
+if (userDataForm) {
+    userDataForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const form = new FormData();
+        form.append('name', document.getElementById('name').value);
+        form.append('email', document.getElementById('email').value);
+        form.append('photo', document.getElementById('photo').files[0]);
+        updateSettings(form, 'data');
+    });
+}
 
-if (logOutBtn) logOutBtn.addEventListener('click', logout)
+// Password Update
+if (userPasswordForm) {
+    userPasswordForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        document.querySelector('.btn--save-password').textContent = 'Updating...';
 
-if (userDataForm)
-  userDataForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const form = new FormData();
-    form.append('name', document.getElementById('name').value);
-    form.append('email', document.getElementById('email').value);
-    form.append('photo', document.getElementById('photo').files[0]);
-    console.log(form);
+        const passwordCurrent = document.getElementById('password-current').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
 
-    updateSettings(form, 'data');
-})
+        await updateSettings({ passwordCurrent, password, passwordConfirm }, 'password');
 
-if (userPasswordForm)
-  userPasswordForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    document.querySelector('.btn--save-password').textContent = 'Updating...';
+        document.querySelector('.btn--save-password').textContent = 'Save password';
+        document.getElementById('password-current').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('password-confirm').value = '';
+    });
+}
 
-    const passwordCurrent = document.getElementById('password-current').value;
-    const password = document.getElementById('password').value;
-    const passwordConfirm = document.getElementById('password-confirm').value;
-    await updateSettings(
-      { passwordCurrent, password, passwordConfirm },
-      'password'
-    );
+// ✅ Fix: Attach click event even if the button loads dynamically
+// Ensure script runs after DOM is fully loaded
+const waitForButton = setInterval(() => {
+  const bookBtn = document.getElementById("book-tour");
+  if (bookBtn) {
+    console.log("✅ Book button found:", bookBtn); // Now only logs when button is found
+    clearInterval(waitForButton); 
 
-    document.querySelector('.btn--save-password').textContent = 'Save password';
-    document.getElementById('password-current').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('password-confirm').value = '';
-  });
+    bookBtn.addEventListener("click", async (e) => {
+      console.log("✅ Button was clicked!");
+      e.preventDefault();
+
+      e.target.textContent = "Processing...";
+      const tourId = e.target.dataset.tourId;
+
+      if (!tourId) {
+        console.error("⚠️ Tour ID not found");
+        alert("An error occurred. Please try again.");
+        e.target.textContent = "Book tour now!";
+        return;
+      }
+
+      try {
+        await bookTour(tourId);
+      } catch (err) {
+        console.error("⚠️ Payment error:", err);
+        e.target.textContent = "Book tour now!";
+      }
+    });
+  } else {
+    console.log("⏳ Waiting for book button...");
+  }
+}, 500); // Check every 500ms
+

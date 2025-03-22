@@ -10,9 +10,10 @@ const xss = require('xss-clean')
 const hpp = require('hpp')
 const cookieParser = require('cookie-parser')
 const authRouter = require('./Routes/authRouter')
-const userRoute = require('./Routes/userRoute')
-const tourRoute = require('./Routes/tourRoutes')
-const reviewRoute = require('./Routes/reviewRoutes')
+const userRouter = require('./Routes/userRoute')
+const tourRouter = require('./Routes/tourRoutes')
+const reviewRouter = require('./Routes/reviewRoutes')
+const bookingRouter = require('./Routes/bookingRoutes')
 const viewRouter = require('./Routes/viewRoutes')
 const AppError = require('./Utils/appError')
 const globalErrorHandler = require('./Controllers/errController')
@@ -65,10 +66,26 @@ if(process.env.NODE_ENV === 'development'){
 app.use(helmet({
   contentSecurityPolicy: {
       directives: {
-          "script-src": ["'self'", "https://cdn.jsdelivr.net"],
+          "default-src": ["'self'"],
+          "script-src": [
+              "'self'",
+              "https://cdn.jsdelivr.net",
+              "https://www.google-analytics.com",
+              "https://api.mapbox.com"
+          ],
+          "connect-src": [
+              "'self'",
+              "ws://127.0.0.1:*", // Allow WebSocket connections
+              "https://api.mapbox.com"
+          ],
+          "frame-src": ["'self'"],
+          "img-src": ["'self'", "data:"],
+          "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+          "font-src": ["'self'", "https://cdn.jsdelivr.net"],
       },
   },
-})) 
+}));
+
 
 // Rate limit
 let limiter = rateLimit({
@@ -87,9 +104,10 @@ app.use('/tour', limiter)
 
 // app.use('/auth', authRouter)
 app.use('/', viewRouter)
-app.use('/users', userRoute)
-app.use('/tours', tourRoute)
-app.use('/reviews', reviewRoute)
+app.use('/users', userRouter)
+app.use('/tours', tourRouter)
+app.use('/reviews', reviewRouter)
+app.use('/bookings', bookingRouter)
 
 // defining route for non existent urls - Wild card route
 app.all('*', (req, res, next) => {

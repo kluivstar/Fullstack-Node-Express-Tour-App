@@ -4,12 +4,13 @@ const htmlToText = require('html-to-text');
 
 module.exports = class Email {
     constructor(user, url) {
-        this.to = user.email;
-        this.firstName = user.name.split(' ')[0];
+        this.to = user.email; // Accepts a user object (with email and name) and a url 
+        this.firstName = user.name.split(' ')[0]; // Extracts first name from user.name.
         this.url = url;
-        this.from = `X Support <${process.env.EMAIL_FROM}>`
+        this.from = `X Support <${process.env.EMAIL_FROM}>` // Sets email sender
     }
 
+    // Configures Email Transport
     newTransport() {
         if (process.env.NODE_ENV === 'production'){
             return nodemailer.createTransport({
@@ -35,8 +36,9 @@ module.exports = class Email {
     
     // Send the actual email
     async send(template, subject){
-        // 1. Render HTML based on a pug template
+        // 1. Render HTML based on a pug template welcome.pug, passwordReset.pug
         const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+            // First name, url and subject passed here contractor above then plugged in welcome.pug
             firstName: this.firstName,
             url: this.url,
             subject
@@ -48,14 +50,16 @@ module.exports = class Email {
             to: this.to,
             subject,
             html,
-            text: htmlToText.convert(html)
+            text: htmlToText.convert(html) // Email is sent as plain text
 
         }
         // 3. Create a transport and send email
         await this.newTransport().sendMail(mailOptions)
     }
+
+    // Prebuilt Email Types
     async sendWelcome(){
-        await this.send('Welcome', 'Welcome to the Trucruize family')
+        await this.send('Welcome', 'Welcome to the Trucruize family') // Sends a welcome Subject
     }
     async sendPasswordReset(){
         await this.send('passwordReset', 'Your password reset token (Valid for 10 minutes)')
