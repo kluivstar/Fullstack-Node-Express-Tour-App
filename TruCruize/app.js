@@ -14,9 +14,11 @@ const userRouter = require('./Routes/userRoute')
 const tourRouter = require('./Routes/tourRoutes')
 const reviewRouter = require('./Routes/reviewRoutes')
 const bookingRouter = require('./Routes/bookingRoutes')
+const bodyParser = require('body-parser');
 const viewRouter = require('./Routes/viewRoutes')
 const AppError = require('./Utils/appError')
 const globalErrorHandler = require('./Controllers/errController')
+const bookingController = require('./Controllers/bookController');
 
 app.set('view engine', 'pug')
 app.set('views', path.join(__dirname, 'views'))
@@ -29,6 +31,14 @@ app.use(express.json({limit: '10kb'}))
 
 // parse incoming request bodies with URL-encoded payloads (e.g., form submissions)
 // Allows parsing of nested objects (e.g., req.body can contain rich objects and arrays).
+
+// Paystack webhook (listen for successful payments)
+app.post(
+  '/webhook-checkout',
+  bodyParser.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
+
 app.use(express.urlencoded({extended: true, limit: '10kb'}))
 
 // Parse - reads data from cookie in req
@@ -57,6 +67,7 @@ app.use(hpp({
 if(process.env.NODE_ENV === 'development'){
    app.use(morgan('dev'))
 }
+
 
 // The logger middleware function defined earlier is then added, logging "Custom middleware called" on every request.
 //app.use(logger)

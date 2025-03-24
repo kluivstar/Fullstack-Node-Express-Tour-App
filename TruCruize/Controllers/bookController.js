@@ -39,35 +39,64 @@ exports.getCheckoutSession = asyncErrorHandler(async (req, res, next) => {
 });
 
 // Automatically create a booking when payment is successful
-const createBookingCheckout = async (reference) => {
-    // Get transaction details from Paystack
-    const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
-        headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+// const createBookingCheckout = async (reference) => {
+//     try {
+//         // Fetch transaction details from Paystack
+//         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+//             headers: {
+//                 Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+//             }
+//         });
+
+//         const session = response.data.data;
+
+//         if (session.status === 'success' && session.metadata) {
+//             const { tourId, userId } = session.metadata;
+//             const price = session.amount / 100; // Convert back to Naira
+
+//             await Booking.create({ tour: tourId, user: userId, price, paid: true });
+
+//             console.log(`✅ Booking created for user ${userId} and tour ${tourId}`);
+//         } else {
+//             console.error("🚨 Metadata is missing or transaction not successful:", session);
+//         }
+//     } catch (error) {
+//         console.error("❌ Error verifying transaction:", error.message);
+//     }
+// };
+
+
+// Webhook for automatic bookings creation after successful payment
+exports.webhookCheckout = asyncErrorHandler(async (req, res) => {
+    console.log("🔔 Webhook hit! Data received:", req.body);
+    try {
+        const event = req.body;
+
+        if (event.event === 'charge.success' && event.data.metadata) {
+            const { metadata, amount } = event.data;
+            const { tourId, userId } = metadata;
+
+            await Booking.create({
+                tour: tourId,
+                user: userId,
+                price: amount / 100, // Convert from kobo to naira
+                paid: true
+            });
+
+            console.log(`✅ Webhook: Booking created for user ${userId} and tour ${tourId}`);
+
+            return res.status(200).json({ success: true });
+        } else {
+            console.error("🚨 Webhook received but missing metadata:", event);
         }
-    });
 
-    const session = response.data.data;
-
-    if (session.status === 'success') {
-        const tour = session.metadata.tourId;
-        const user = session.metadata.userId;
-        const price = session.amount / 100; // Convert back to Naira
-
-        await Booking.create({ tour, user, price });
+        res.status(400).json({ success: false });
+    } catch (error) {
+        console.error("❌ Webhook processing error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
     }
-};
+});
 
-// Webhook for automatic booking creation
-exports.webhookCheckout = (req, res) => {
-    const event = req.body;
-
-    if (event.event === 'charge.success') {
-        createBookingCheckout(event.data.reference);
-    }
-
-    res.status(200).json({ received: true });
-};
 
 // Standard CRUD operations for bookings
 exports.createBooking = factory.createOne(Booking);
@@ -75,3 +104,4 @@ exports.getBooking = factory.getOne(Booking);
 exports.getAllBookings = factory.getAll(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);
+

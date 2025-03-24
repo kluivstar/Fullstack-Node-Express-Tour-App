@@ -6,10 +6,6 @@ const router = express.Router();
 
 // Get payment session for Paystack
 router.get('/checkout-session/:tourId', authController.protect, bookingController.getCheckoutSession);
-
-// Paystack webhook (listen for successful payments)
-router.post('/webhook-checkout', express.json(), bookingController.webhookCheckout);
-
 // Standard booking routes
 router
     .route('/')
