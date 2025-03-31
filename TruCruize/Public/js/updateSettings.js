@@ -8,8 +8,8 @@ export const updateSettings = async (data, type) => {
     console.log('Sending request:', data, type);
     const url =
       type === 'password'
-        ? 'http://127.0.0.1:3000/users/updatePassword'
-        : 'http://127.0.0.1:3000/users/updateMe';
+        ? '/users/updatePassword'
+        : '/users/updateMe';
 
     const res = await axios({
       method: 'PATCH',

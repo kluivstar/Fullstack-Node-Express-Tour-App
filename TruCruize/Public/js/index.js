@@ -14,7 +14,6 @@ const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
 const bookBtn = document.getElementById('book-tour');
 
-console.log("DOM fully loaded!");
 
 // ✅ Debugging: Check if book button exists
 console.log("Book button element:", bookBtn);

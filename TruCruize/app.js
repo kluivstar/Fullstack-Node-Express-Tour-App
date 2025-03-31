@@ -9,6 +9,7 @@ const sanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp')
 const cookieParser = require('cookie-parser')
+const compression = require('compression')
 const authRouter = require('./Routes/authRouter')
 const userRouter = require('./Routes/userRoute')
 const tourRouter = require('./Routes/tourRoutes')
@@ -62,6 +63,8 @@ app.use(hpp({
     'price'
   ]
 }))
+
+app.use(compression())
 
 // Development logging
 if(process.env.NODE_ENV === 'development'){

@@ -94,8 +94,6 @@ exports.getMe = (req, res, next) => {
 
 // Update User
 exports.updateMe = asyncErrorHandler(async (req, res, next) => {
-    console.log(req.body)
-    console.log(req.file)
 
     if(req.body.password || req.body.passwordConfirm){
         return next(

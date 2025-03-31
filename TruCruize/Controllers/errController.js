@@ -30,7 +30,6 @@ const castErrorHandler = err => {
 // Handle duplicate document creation
 const duplicateKeyErrorHandler = (err) =>{
     const name = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-    console.log(value)
 
     const message = `Theres is already a tour with name ${name}. Kindly use another name`
     return new AppError(message, 400)
@@ -67,7 +66,7 @@ const sendProdError = (err, req, res) => {
             })
         }
     // Send Generic Message
-    console.log('Error', err)
+    
     return res.status(500).json({
         status: 'error',
         message: 'Something went very wrong'
@@ -76,14 +75,13 @@ const sendProdError = (err, req, res) => {
 
     // Render Website
     if (err.isOperational) {
-        console.log(err)
+        
         return res.status(err.statusCode).render('error', {
             title: 'Something went wrong',
             msg: err.message
         })
     }
 
-    console.log('Error', err)
     // Send Generic Message
     return res.status(err.statusCode).render('error', {
         title: 'Something went wrong',
