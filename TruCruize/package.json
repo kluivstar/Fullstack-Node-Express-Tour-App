@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=development node server.js",
-    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "start": "node server.js",
+    "dev": " nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
-    "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js" // Using parcel to build JS files and generate bundle.js in public
+    "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js" 
   },
   "author": "",
   "license": "ISC",
