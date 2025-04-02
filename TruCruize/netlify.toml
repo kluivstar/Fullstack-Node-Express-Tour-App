@@ -1,0 +1,8 @@
+[build]
+  base = "."
+  command = "npm run build:js"
+  publish = "Public" # Output directory where the built files are located
+
+[dev]
+  command = "npm run dev" # Your local development server command
+  port = 3000
