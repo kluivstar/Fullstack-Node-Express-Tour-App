@@ -1,16 +1,4 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "TruCruize/server.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "TruCruize/server.js"
-      }
-    ]
+    "version": 2
   }
   

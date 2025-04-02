@@ -8,7 +8,7 @@
     "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
-    "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
+    "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js" // Using parcel to build JS files and generate bundle.js in public
   },
   "author": "",
   "license": "ISC",
@@ -38,6 +38,7 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "morgan": "^1.10.0",
-    "parcel-bundler": "^1.12.5"
+    "parcel-bundler": "^1.12.5",
+    "nodemon": "^2.0.7"
   }
 }
