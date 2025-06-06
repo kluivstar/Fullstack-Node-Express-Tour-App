@@ -49,18 +49,27 @@ if (userDataForm) {
     });
 }
 
-// Password Update
+// Password Update form Handler
 if (userPasswordForm) {
     userPasswordForm.addEventListener('submit', async e => {
+
         e.preventDefault();
+        
+        // Shows loading text
         document.querySelector('.btn--save-password').textContent = 'Updating...';
 
+        //  Get password values from form fields
         const passwordCurrent = document.getElementById('password-current').value;
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('password-confirm').value;
 
+        //  Call the update function
+        // Sends the data to the server using an updateSettings helper.
+        // The second argument 'password' likely tells the server which type of update this is.
         await updateSettings({ passwordCurrent, password, passwordConfirm }, 'password');
 
+
+        //  Reset button and clear fields
         document.querySelector('.btn--save-password').textContent = 'Save password';
         document.getElementById('password-current').value = '';
         document.getElementById('password').value = '';

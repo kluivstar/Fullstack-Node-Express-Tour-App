@@ -23,7 +23,7 @@ const factory = require('./handlerFactory')
 //   }
 // });
 
-// Use this instead of above since we install Sharp for image processing
+// Use this used instead of above since we install Sharp for image processing
 const multerStorage = multer.memoryStorage();
 
 // 2. File Type Filtering
@@ -52,7 +52,8 @@ exports.resizeUserPhoto = asyncErrorHandler(async (req, res, next) => {
     if(!req.file) return next()
 
     req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`
-// Processes the Cover Image, Saves it to public/img/users
+
+    // Processes the Cover Image, Saves it to public/img/users
     await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
@@ -86,7 +87,7 @@ exports.createUser = (req, res) => {
         message: "This route is not defind, use /signup instead"
     })
 }
-// Get use without needing the user Id
+// Get user without needing the user Id
 exports.getMe = (req, res, next) => {
     req.params.id = req.user.id;
     next();

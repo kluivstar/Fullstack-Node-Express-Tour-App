@@ -98,6 +98,7 @@ module.exports = (err, req, res, next) => {
         sendDevError(err, req, res)
         // Handles/Calls Production Error
     } else if(process.env.NODE_ENV === 'production'){
+        
         // Creates copy of error object then passed to error handlers like castErrorHandler
         let error = Object.assign(err);
         error.message = err.message;

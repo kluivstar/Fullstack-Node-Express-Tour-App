@@ -4,6 +4,7 @@ const Booking = require('../Models/bookingModel.js')
 const AppError = require('../Utils/appError')
 const asyncErrorHandler = require('../Utils/asyncErrorHandler')
 
+// Render all documents - tours
 exports.getOverview = asyncErrorHandler( async (req, res, next) => {
     // get tour data from collection
 
@@ -16,7 +17,9 @@ exports.getOverview = asyncErrorHandler( async (req, res, next) => {
     })
 })
 
+// Render specific documents - tours
 exports.getTour = asyncErrorHandler( async (req, res, next) => {
+
     const tour = await Tour.findOne({slug: req.params.slug}).populate({
         path: 'reviews',
         fields: 'review rating user'
@@ -32,6 +35,7 @@ exports.getTour = asyncErrorHandler( async (req, res, next) => {
     })
 })
 
+// Render Login page
 exports.getLoginForm = asyncErrorHandler( async(req, res, next) => {
     const tours = await Tour.find()
 
@@ -40,7 +44,7 @@ exports.getLoginForm = asyncErrorHandler( async(req, res, next) => {
     })
 })
 
-
+// Render Account page
 exports.getAccount = (req, res) => {
     res.status(200).render('account', {
         title: 'Your account'
@@ -48,6 +52,7 @@ exports.getAccount = (req, res) => {
     console.log(res)
 }
 
+// Get user documents - tours
 exports.getMyTours = asyncErrorHandler(async (req, res, next) => {
     
     const bookings = await Booking.find({user: req.user.id})
@@ -62,7 +67,7 @@ exports.getMyTours = asyncErrorHandler(async (req, res, next) => {
     })
 })
 
-// 
+// Update user data
 exports.updateUserData = asyncErrorHandler(async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(req.user.id, {
         name: req.body.name,

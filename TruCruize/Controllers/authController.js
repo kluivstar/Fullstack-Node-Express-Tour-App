@@ -6,15 +6,17 @@ const {promisify} = require('util')
 const Email = require('./../Utils/email')
 const crypto = require('crypto')
 
-// Reuseable sign Token 
+// Create Reuseable sign in or JWT Token 
 const signToken = id => {
     return jwt.sign({id}, process.env.SECRET_STR, {expiresIn: process.env.LOGIN_EXPIRES})
 }
 
+// Called when a user signs up or logs in.
 const createSendToken = (user, statusCode, res) => {
-    // signToken adds jwt to received 'user' 
-    // user._id is the payload to add to jwt
+    // Create a token with the user's ID 
     const token = signToken(user._id)
+
+    //Setup cookie options
     const cookieOptions = {
         expires: new Date(
             Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -25,10 +27,13 @@ const createSendToken = (user, statusCode, res) => {
     if(process.env.NODE_ENV === 'production')
         cookieOptions.secure = true;
 
+    // Set the cookie in the response
     res.cookie('jwt', token, cookieOptions)
+
+    //Remove password before sending user data back
     user.password = undefined
     
-    // if a user is created
+    // if a user is created - Send response
     res.status(statusCode).json({
         status: "success",
         token,
@@ -37,24 +42,32 @@ const createSendToken = (user, statusCode, res) => {
         }
     })
 }
-// Sign up Middleware
-// asyncErrorHandler catches error for exception i.e if a user is not created
+// Sign up RHF-Middleware
 exports.signup = asyncErrorHandler(async (req, res, next) =>{
+    
+    // Extract signup fields
     const { name, email, password, passwordConfirm, role } = req.body;
 
     // Log the role value separately
     console.log('Role:', role); // Ensure the role is correct
+
+    // Create new user with fields
+    // .create() adds user to Mongoose DB
     const newUser = await User.create({
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-        role: role || 'user' // Defaults to user is role is not provided
+        role: role || 'user' // Defaults to user if role is not provided
     })
+
+      // Create a profile URL
     const url = `${req.protocol}://${req.get('host')}/me`;
-    // console.log(url);
+
+      // Send welcome email
     await new Email(newUser, url).sendWelcome();
     
+    // Send JWT in cookie & response
     createSendToken(newUser, 201, res)
 })
 
@@ -111,11 +124,13 @@ exports.isLoggedIn = async(req, res, next) => {
     next()
 }
 
-//
+// Logou tRHF
 exports.logout = (req, res) => {
+
+    // 'jwt' is the name of the cookie used to store the token.
     res.cookie('jwt', 'loggedout', {
-        expires: new Date(Date.now(0)), // The cookie disappears after 10 seconds.
-        httpOnly: true // Prevents JavaScript from accessing the cookie.
+        expires: new Date(Date.now()), // The cookie expires immediately.
+        httpOnly: true // Can't be accessed by client-side JavaScript
     })
     res.status(200).json({
         status: 'success'
@@ -123,28 +138,32 @@ exports.logout = (req, res) => {
 }
 
 // Protect or a JWT authentication middleware
+// It checks if the request has a valid JWT token/authenticated - If valid → it allows the user to continue (next())
 exports.protect = asyncErrorHandler(async (req, res, next) => {
     // 1) Getting token and check of it's there
     let token;
+
+    // Looks for the JWT in: Auth header
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith('Bearer')
     ) {
       token = req.headers.authorization.split(' ')[1];
-    } else if (req.cookies.jwt) {
+    } else if (req.cookies.jwt) { // // Looks for the JWT in: cookies
       token = req.cookies.jwt;
     }
-  
+    
+    // User to authorized, thrown and error - No access
     if (!token) {
       return next(
         new AppError('You are not logged in! Please log in to get access.', 401)
       );
     }
   
-    // 2) Verify token
+    // 2) Verify token if user is authorized
     const decoded = await promisify(jwt.verify)(token, process.env.SECRET_STR);
   
-    // 3) Check if user still exists
+    // 3) Check if user still exists in DB
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
       return next(
@@ -162,14 +181,15 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
       );
     }
   
-    //  Allow/Grant user access to protected route 
+    // If all checks passed - Allow user access to protected route 
     req.user = currentUser;
-    res.locals.user = currentUser; // Puts current user in res and res.locals - makes current user avaliable in templates
+    res.locals.user = currentUser; // Puts current user in res and res.locals - so templates can use the user eg PUG
     next();
   });
   
 
-// Restrict Middleware - If the user is authenticated and has the admin role, the route handler runs.
+// Restrict Middleware - limits access based on the user's role.
+// It's used after the protect middleware (which confirms the user is logged in).
 // The protect middleware ensures that the user is authenticated and populates "req.user" stored in protect MW.
 exports.restrict = (...roles) => {
     return (req, res, next) => {
@@ -182,25 +202,29 @@ exports.restrict = (...roles) => {
     }
 };
 
+// Initial password Reset process part 1
 exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 
-    // Get user based on posted email
+    // Checks if a user with the provided email exists.
     const user = await User.findOne({email: req.body.email});
+
     if(!user){
         return next(new AppError("User with this email doesnt exist..", 404));
         
     }
     
-    // createResetPasswordToken() generates a random encrypted reset token
-    const resetToken = user.createResetPasswordToken();
-    // Deactivate validators in schema
+    // Generate a reset token
+    const resetToken = user.createResetPasswordToken(); // custom method defined on the user model.
+
+    // skips field validations (like required password fields).
     await user.save({validateBeforeSave: false});
 
-     // Sends the mail with reset url to user
+     // Send email with reset link
     try{
        
         const resetUrl = `${req.protocol}://${req.get('host')}/users/resetPassword/${resetToken}`;
 
+        // Send mail with reset URL
         await new Email(user, resetUrl).sendPasswordReset();
             res.status(200).json({
                 status: 'success',
@@ -215,15 +239,18 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 
 });
 
+// Resets password part 2
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
-    // Recieved token in req is hashed ,if the user exist with the given Token and Token has not expired
+
+    // Hash the incoming token - The token the user clicked in their email is plain text.
     const hashedToken = crypto
         .createHash('sha256')
         .update(req.params.token)
         .digest('hex');
 
-        // Hashed token is then compared with the passwordResetToken(also hashed) stored in the database and checked against the expiration time
+        // Find user with valid token where the hashded token in DB is the one from the URL and not expired.
     const user = await User.findOne({passwordResetToken: hashedToken, passwordResetExpires: {$gt: Date.now()}})
+
 
     if(!user){
         const error = new AppError('Token expired or invalid', 400)
@@ -233,21 +260,25 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     // Resetting the user password
     user.password = req.body.password
     user.passwordConfirm = req.body.passwordConfirm
+
+    // Removes reset token an expiration to avoid reuse
     user.passwordResetToken = undefined
     user.passwordResetExpires = undefined
     user.passwordChangedAt = Date.now()
 
+    // Saves user
     await user.save()
     
     // Login the user
     createSendToken(user, 200, res)
 });
 
+// Update Password
 exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
     
     // Get user from DB
-    // 'req.user' from protect MW
-    // + ensure password is retrieved
+    // 'req.user.id' from protect MW - it confirms the user is logged in
+    // + ensure password is included which is normally excluded in schema for security reasons
     const user = await User.findById(req.user.id).select('+password')
     
     // Checks if current password is correct

@@ -7,12 +7,12 @@ export const login = async (email, password) => {
         const res = await axios({
             method: 'POST',
             url: '/users/login',
-            data: { // Sends a POST request using Axios with the provided credentials.
+            data: { // Sends a POST request using Axios with the provided credentials to RHF
                 email,
                 password
             }
         })
-
+        // RHF checks if user and password exists and send a response which is res.data.status
         if (res.data.status === 'success'){
             showAlert('success', 'Logged in successfully')
             window.setTimeout(() => {
@@ -29,7 +29,7 @@ export const logout = async () => {
     try {
         const res = await axios({
             method: 'GET',
-            url: '/users/logout'
+            url: '/users/logout' // Call Logout RHF - Middleware
         })
 
         if ((res.data.status == 'success')) location.reload(true)

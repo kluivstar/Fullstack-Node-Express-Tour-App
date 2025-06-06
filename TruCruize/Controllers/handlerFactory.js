@@ -6,8 +6,10 @@ const asyncErrorHandler = require('./../Utils/asyncErrorHandler')
 
 // Get All Document
 exports.getAll = Model => asyncErrorHandler(async (req, res, next) => {
+
     let filter = {}
     if(req.params.tourId) filter = {tour: req.params.tourId}
+
     const features = new APIFeatures(Model.find(filter), req.query)
     .filter()
     .sort()
@@ -29,16 +31,23 @@ exports.getAll = Model => asyncErrorHandler(async (req, res, next) => {
     } 
 )
 
-// Get Single Document
+// Get Single Document (e.g., user, tour, product) by its ID from the database.
 exports.getOne = (Model, popOptions) => asyncErrorHandler(async (req, res, next) => {
+
+    //  Build the base query
     let query = Model.findById(req.params.id)
+
+    //  Optionally populate referenced fields
     if (popOptions) query = query.populate(popOptions)
+      
+    // Execute the query
     const doc = await query;
 
     if(!doc){
         return next(new AppError('No document found with that ID', 404))
     }
 
+    // Send back the document
     res.status(201).json({
         status: "success",
         data: {
